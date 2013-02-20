@@ -16,3 +16,13 @@ same40K
 oob score0.875290717061
 RMSE:0.0909281379901
 Time:250.0
+
+fixYearMadeGreaterthanSale
+oob score0.875359023231
+RMSE:0.0908701843456
+Time:252.0
+
+useYearMade-notSaleYear
+oob score:0.912988474428
+RMSE:0.0758767729247
+Time:2931.0
