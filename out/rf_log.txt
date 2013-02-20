@@ -1,0 +1,18 @@
+test logoob score0.817983269603
+RMSE:0.110824285484
+Time:36.0
+
+test4K
+oob score0.819112429321
+RMSE:0.110087743818
+Time:35.0
+
+delSaleYear-inclYearmade
+oob score0.823628632092
+RMSE:0.109771159065
+Time:35.0
+
+same40K
+oob score0.875290717061
+RMSE:0.0909281379901
+Time:250.0
