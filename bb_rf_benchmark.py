@@ -556,10 +556,10 @@ for fea in imp:
         if fea[1] > 0.01:
             print fea[0], "|", fea[1]
             
-print "oob score", rf.oob_score_
+print "oob score:", rf.oob_score_
 print "score", rf.score(train_fea, train_Y)
 logger.write("\n" + comment+ "\n")
-logger.write("oob score" +str( rf.oob_score_)+ "\n")
+logger.write("oob score:" +str( rf.oob_score_)+ "\n")
 
 print datetime.datetime.today()
 
