@@ -59,19 +59,19 @@ def map_external_data(data):
     #tcons_mean = np.mean(ext_data.values())
     tcons_min = min(ext_data["TTLCONS"])
     tsales_median = np.median(ext_data["HTRUCKSSA"]) # try mean
-    cpi_min = min(ext_data["CPI"])
+    cpi_min = min(ext_data["TCPI"])
     #print ext_data["CPI"]
     #print "sample cpi", ext_data["CPI"]["2006-08-01"]
     
     ext_data["TTLCONS"] = ext_data["TTLCONS"].fillna(tcons_min)
     ext_data["HTRUCKSSA"] = ext_data["HTRUCKSSA"].fillna(tsales_median) # is not much smaller in earlier years
-    ext_data["CPI"] = ext_data["CPI"].fillna(0) # cpi_min
+    ext_data["TCPI"] = ext_data["TCPI"].fillna(0) # cpi_min
     
     # Get the data value (x) corresponding to column for each date in data
     data["tcons"] = [ext_data["TTLCONS"][x] for x in data["SaleYearMo3"]]
     data["tsales"] = [ext_data["HTRUCKSSA"][x] for x in data["SaleYearMo3"]]
-    data["tcpi"] = [ext_data["CPI"][x] for x in data["SaleYearMo2"]]
-    
+    data["tcpi"] = [ext_data["TCPI"][x] for x in data["SaleYearMo2"]]
+    data["cpi"] = [ext_data["CPI"][x] for x in data["SaleYearMo2"]]
     del data["SaleYearMo3"]
     del data["SaleYearMo2"]
     return data
@@ -544,7 +544,7 @@ util.write_submission("submit_rf" + comment + ".csv", predictions)
 imp = sorted(zip(train_fea.columns, rf.feature_importances_), key=lambda tup: tup[1], reverse=True)
 logger = open("out/rf_log.txt","a")
 
-csv_w = csv.writer(open('out/rf_features.csv','wb'))
+csv_w = csv.writer(open('out/rf_features' + comment + '.csv','wb'))
 for fea in imp:
     csv_w.writerow([fea[0],fea[1]])
 
