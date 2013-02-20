@@ -46,10 +46,10 @@ def get_date_dataframe(date_column):
         "SaleDay": [d.day for d in date_column],
         "SaleWkDay": [d.isocalendar()[2] for d in date_column],
         # "SaleYrWk": [d.isocalendar()[1] for d in date_column],
-        "SaleYearMo3":[str((d + relativedelta(months = -3)).year) +
-                       "-" + str.zfill(str((d + relativedelta(months = -3)).month),2) + "-01" for d in date_column],
-        "SaleYearMo2":[str((d + relativedelta(months = -2)).year) +
-                       "-" + str.zfill(str((d + relativedelta(months = -2)).month),2) + "-01" for d in date_column]
+        "SaleYearMo3":[str((d + relativedelta(months = -3)).month) +
+                       "/1/" + str((d + relativedelta(months = -3)).year) for d in date_column],
+        "SaleYearMo2":[str((d + relativedelta(months = -2)).month) +
+                       "/1/" + str((d + relativedelta(months = -2)).year) for d in date_column]
         #}, index=date_column.index)
         })
 
