@@ -125,10 +125,15 @@ def clean_columns(data, data_out):
         if col == "YearMade":
             #print "calculating years age"
             new_arr =[]
+            year_new_arr = []
             for i in xrange(num_rows):
-                age = max(data["saledate"][i].year - data[col][i],0)
+		# fix 2014 yearmade
+    	        yearmade = min(data["saledate"][i].year, data[col][i])
+                age = (data["saledate"][i].year - yearmade)
                 new_arr.append(age)
+    		year_new_arr.append(yearmade)
             data['YearsAge'] = new_arr
+	    data[col] = year_new_arr
             #del data["YearMade"]
 	    # might need to use the new mfg year later
         
