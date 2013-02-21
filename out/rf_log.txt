@@ -26,3 +26,23 @@ useYearMade-notSaleYear
 oob score:0.912988474428
 RMSE:0.0758767729247
 Time:2931.0
+
+reg_cpi
+oob score:0.875088731963
+RMSE:0.0911075925004
+Time:253.0
+
+onlycpi
+oob score:0.87365235041
+RMSE:0.0914217792326
+Time:249.0
+
+keepna
+oob score:0.872876722656
+RMSE:0.0919273092086
+Time:263.0
+
+fix_yearmade
+oob score:0.87296915901
+RMSE:0.091785318614
+Time:261.0
