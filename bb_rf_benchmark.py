@@ -101,7 +101,7 @@ def map_columns(col, d, data, data_out):
     #data.drop([col], axis =1)
     return data_out
 
-col_list = ["ProductSize"] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
+col_list = ["ProductSize",'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
 # referenced in clean_columns and final col parsing
 
 def clean_columns(data, data_out):
@@ -128,7 +128,7 @@ def clean_columns(data, data_out):
             new_arr =[]
             year_new_arr = []
             for i in xrange(num_rows):
-		# fix 2014 yearmade
+		# fix datapoints with bad yearmade (2014) or saledate < yearmade
     	        yearmade = min(data["saledate"][i].year, data[col][i])
                 age = (data["saledate"][i].year - yearmade)
                 new_arr.append(age)
