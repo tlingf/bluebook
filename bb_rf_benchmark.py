@@ -30,7 +30,7 @@ comment = sys.argv[1]
 # figure out avg values of na values for all col's
 # why is stick length mean so high
 
-testing = 0
+testing = 1
 run_ml = 1
 use_wiserf =  0 # Doesn't work
 #run_ml = 1
@@ -41,7 +41,7 @@ t1 = time()
 
 def get_date_dataframe(date_column):
     return pd.DataFrame({
-       # "SaleYear": [d.year for d in date_column],
+        "SaleYear": [d.year for d in date_column],
         "SaleMonth": [d.month for d in date_column],
         "SaleDay": [d.day for d in date_column],
         "SaleWkDay": [d.isocalendar()[2] for d in date_column],
@@ -68,10 +68,10 @@ def map_external_data(data):
     ext_data["TCPI"] = ext_data["TCPI"].fillna(0) # cpi_min
     
     # Get the data value (x) corresponding to column for each date in data
-    data["tcons"] = [ext_data["TTLCONS"][x] for x in data["SaleYearMo3"]]
-    data["tsales"] = [ext_data["HTRUCKSSA"][x] for x in data["SaleYearMo3"]]
-    data["tcpi"] = [ext_data["TCPI"][x] for x in data["SaleYearMo2"]]
-    data["cpi"] = [ext_data["CPI"][x] for x in data["SaleYearMo2"]]
+    #data["tcons"] = [np.log(ext_data["TTLCONS"][x]) for x in data["SaleYearMo3"]]
+    #data["tsales"] = [np.log(ext_data["HTRUCKSSA"][x]) for x in data["SaleYearMo3"]]
+    data["tcpi"] = [np.log(ext_data["TCPI"][x]) for x in data["SaleYearMo2"]]
+    #data["cpi"] = [np.log(ext_data["CPI"][x]) for x in data["SaleYearMo2"]]
     del data["SaleYearMo3"]
     del data["SaleYearMo2"]
     return data
@@ -134,7 +134,7 @@ def clean_columns(data, data_out):
     		year_new_arr.append(yearmade)
             data['YearsAge'] = new_arr
 	    data[col] = year_new_arr
-            #del data["YearMade"]
+            del data["YearMade"]
 	    # might need to use the new mfg year later
         
         elif col == "ProductSize":
@@ -306,13 +306,18 @@ def clean_columns(data, data_out):
 def binarize_cols(col, train, test, train_fea, test_fea):
     """ Change categorical variables to binary columns"""
     lb_bm = preprocessing.LabelBinarizer()
+    #print "train values", train[col]
+    #print "test values", test[col]
     lb_bm.fit(np.append(train[col].values, test[col].values))
+    # Create matrix of binary columns
     train_bm = lb_bm.transform(train[col])
     test_bm = lb_bm.transform(test[col])
     
     # Join them together
     classes = lb_bm.classes_
+    #print classes
     for i in xrange(len(classes)):
+	#print category
         category = classes[i]
         train_fea[col + "-" + str(category)] = train_bm[0::,i]
         test_fea[col + "-" + str(category)] = test_bm[0::,i]
@@ -322,12 +327,21 @@ def data_to_fea():
     """Main preprocessing"""
     train, test = util.get_train_test_df()
     
-    #train = train[train["saledate"] >= datetime.datetime(1993,1,1)]
-    #train = train.reindex(range(len(train)))
+    if testing == 1:
+	# This is the to test predict
+	test = train[(train["saledate"] >= datetime.datetime(2011,1,1)) & (train["saledate"] < datetime.datetime(2011,5,1))]
+	test_Y = test["SalePrice"]
+	train = train[(train["saledate"] < datetime.datetime(2011,1,1))]
+	
+	print test.shape
+	#print test
+	train = train.reset_index(drop = True) # drops the original index
+	test = test.reset_index(drop = True)
+	del test["SalePrice"]
     
     train_fea = get_date_dataframe(train["saledate"])
     test_fea = get_date_dataframe(test["saledate"])
-
+    
     train_fea = map_external_data( train_fea)
     test_fea = map_external_data(test_fea)
 
@@ -335,9 +349,11 @@ def data_to_fea():
     train, train_fea = clean_columns(train, train_fea)
     test, test_fea = clean_columns(test, test_fea)
     # train[["power_min", "power_max", "SalePrice", "ProductGroup", "YearMade"]].to_csv('power_min_out.csv', index=True)
-    
+    test_columns = set(test.columns)
     columns = set(train.columns)
-    print columns
+    
+    
+    print "diff of columns", columns - test_columns
     columns.remove("SalesID")
     columns.remove("SalePrice")
     columns.remove("saledate")
@@ -354,7 +370,7 @@ def data_to_fea():
         #if col == "Backhoe_Mounting": # Testing - error in the fillna "convert string to float" but why?
             # error with BladeExtension
             #print test[col][0:25]
-            print "starting", col
+            #print "starting", col
             if col == 'fiBaseModel': # Special case
                 train[col] = [str(x).strip() for x in train[col].values]
                 test[col] = [str(x).strip() for x in test[col].values]
@@ -362,7 +378,7 @@ def data_to_fea():
             if col  in [ 'fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'state',
                         'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleMonth', "SaleWkDay"] :
             #if col in ['fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'Enclosure', 'MfgID']:
-                print "binarize", col
+                #print "binarize", col
                 if col in ['auctioneerID', 'MfgID']:
                     train[col]=train[col].fillna(value =0)
                     test[col] = test[col].fillna(value = 0)
@@ -380,23 +396,24 @@ def data_to_fea():
                 #
                 #print "counting unique"
                 s = np.unique(x for x in np.append(train[col].values,test[col].values))
-                print  col, ":", len(s), ":", s[:10]
+                #print  col, ":", len(s), ":", s[:10]
                 
                 # Binarize these ones:
-                if len(s) >2 and len(s) < 100: # in [ 'fiBaseModel']
+                if len(s) >2 and len(s) < 100 and col not in "Thumb": # in [ 'fiBaseModel']
                 # try on len(s) > 3
                 # don't binarize datasource (6 values), lower performance
-                    print "binarize", col
-                    # would binarize BaseModel but too much memory  
+                    #print "binarize", col
+                    # would binarize BaseModel but too much memory
+		    #print test[col]
                     train_fea, test_fea = binarize_cols(col, train, test, train_fea, test_fea)
                 
                 # Just enumerate these
                 else:
                 #if 1:
-                    print "enumerate",col
+                    #print "enumerate",col
                     #Don't need below line for full data set usually
                     if test[col].dtype != np.dtype(object):
-                        print "changing test obj type"
+                        #print "changing test obj type"
                         test[col] = test[col].astype(object) # in case test had diff type
                     
                     if len(s) == 2:
@@ -417,7 +434,7 @@ def data_to_fea():
                         mapping = pd.Series([x[0] for x in enumerate(s)], index = s) # Original code
                         
                         # Faster method to add col
-                        print "mapping col"
+                        #print "mapping col"
                         
                         
                         train_fea[col] = train[col].map(mapping)
@@ -430,13 +447,15 @@ def data_to_fea():
             else:
             # Numeric field
             
-                print col, " as number"
+                #print col, " as number"
             #if train[col].dtype != np.dtype('object'):
                 #m = np.mean([x for x in train[col] if not np.isnan(x)])
                 
                 # can use pd.isnull(frame).any() TRY 
                 if col =="MachineID" or col == "ModelID" or col == "datasource":
                     m = 0 # value to fill
+		    train_m = 0
+		    test_m = 0
                 elif col in [ "MachineHoursCurrentMeter", 'Stick_Length']:
                     # Diff w/ 0 is not large
                     train_m = round(np.mean([x for x in train[col] if x > 0]),1)
@@ -486,8 +505,8 @@ def data_to_fea():
                 #print "converting to float"
                 #train[col] = train[col].astype('float64')
                 #test[col] = test[col].astype('float64')
-                #train[col] = np.log(train[col]+1)
-                #test[col] = np.log(test[col]+1)
+                train[col] = np.log(train[col]+1)
+                test[col] = np.log(test[col]+1)
                 
                 train_fea[col]  = train[col]
                 test_fea[col] = test[col]
@@ -510,14 +529,28 @@ def data_to_fea():
     # This isn't really necessary
     train_fea=train_fea.fillna(method='pad')
     test_fea = test_fea.fillna(method ='pad')
-    #train_fea = train_fea[train_fea["SaleYear"] >= 1993] # try this out # now at the top
-    #train = train[train["saledate"] >= datetime.datetime(1993,1,1)] # try this out # now at the top
-    train = train.drop(["saledate"], axis = 1)
-    return train_fea, test_fea, train["SalePrice"]
+    #train_fea = train_fea[train_fea["SaleYear"] <  2011] # try this out # now at the top
+    #train = train[train["saledate"] <= datetime.datetime(2011,1,1)] # try this out # now at the top
 
+    del train["saledate"]
+    #del test_fea["saledate"]
+    del train_fea["SaleYear"]
+    del test_fea["SaleYear"]
+    #train = train.drop(["saledate"], axis = 1)
+    #del train_fea["SaleYear"]
+    #del train_validate_fea
+    if testing == 1:
+	return train_fea, test_fea, [x for x in train["SalePrice"]], test_Y
+    else:
+	return train_fea, test_fea, [x for x in train["SalePrice"]]
+    #return train_validate_fea, test_fea, [x for x in train_validate["SalePrice"]]
 
-train_fea, test_fea , train_Y = data_to_fea()
+if testing == 0:train_fea, test_fea , train_Y  = data_to_fea()
+else: train_fea, test_fea , train_Y, test_Y = data_to_fea()
+print "Length of features:", train_fea.shape
+#print "Length of "
 train_Y = np.log(train_Y)
+#train_validate_Y = np.log(train_validate["SalePrice"])
 
 train_len = train_fea.shape[0]
 print "new train length", train_len
@@ -537,6 +570,8 @@ elif run_ml == 1:
     rf.fit(train_fea, train_Y)
     
     print "Fitting"
+    
+    # if testing, this is part of training set.
     predictions = rf.predict(test_fea)
     predictions = np.exp(predictions)
 #print "Mean Squared Error:", np.sqrt(mean_squared_error(train_Y, rf.predict(train_fea)))
@@ -559,7 +594,7 @@ for fea in imp:
 print "oob score:", rf.oob_score_
 print "score", rf.score(train_fea, train_Y)
 logger.write("\n" + comment+ "\n")
-logger.write("oob score:" +str( rf.oob_score_)+ "\n")
+#logger.write("oob score:" +str( rf.oob_score_)+ "\n")
 
 print datetime.datetime.today()
 
@@ -570,31 +605,50 @@ def is_numeric(obj):
 # RMSE
 print "Calculating RMSE"
 #
-train_predict = rf.predict(train_fea)
-train_Y = np.exp(train_Y)
-train_predict = np.exp(train_predict)
-#print train_Y
+#train_predict = rf.predict(train_validate_fea)
+#train_predict = np.exp(train_predict)
 
-#print "reindexing"
-#train_len = len(train_predict)
-#train_Y = train_Y.reindex(range(train_len))
-##train_fea = train_fe.reindex(train_len)
+
+train_predict = rf.predict(train_fea)
+train_predict = np.exp(train_predict)
+train_Y = np.exp(train_Y)
+    
                     
-                    
+
+print "Length of train_predict", len(train_predict)
+#print "Length of train_Y", len(train_Y)
+#print "train_predict", train_predict
+#print "train_Y", train_Y
 train_len = len(train_predict)
 error_sum = 0
-i =0 
+i =0
 for i in xrange(train_len):
-    error_unit = (np.log(train_Y[i] ) - np.log(train_predict[i] ))**2
-    #if is_numeric(train_Y[i]):
-        #print train_Y[i]
-    #try:error_unit = (np.log(train_Y[i] ) - np.log(train_predict[i] ))**2
-    #except:
-        #print train_Y[i], train_predict[i]
+    error_unit = (np.log(train_Y[i]) - np.log(train_predict[i] ))**2
+    #else: error_unit = (np.log(train_Y[i]) - np.log(train_predict[i] ))**2
+    #print (np.log(train_Y[i]) - np.log(train_predict[i] ))
+    #print error_unit
     error_sum += error_unit
-rmse = np.sqrt(error_sum/float(train_len))
-print "RMSE:", rmse
+error_sum = error_sum/float(train_len)    
+rmse = np.sqrt(error_sum)
+print "Train Set RMSE:", rmse
 
+if testing == 1:
+    train_predict = predictions
+    train_Y = [ x for x in test_Y]
+    print "Length of train_predict", len(train_predict)
+    #print "Length of train_Y", len(train_Y)
+    train_len = len(train_predict)
+    error_sum = 0
+    for i in xrange(train_len):
+	error_unit = (np.log(train_Y[i]) - np.log(train_predict[i] ))**2
+	#else: error_unit = (np.log(train_Y[i]) - np.log(train_predict[i] ))**2
+	#print (np.log(train_Y[i]) - np.log(train_predict[i] ))
+	#print error_unit
+	error_sum += error_unit
+    error_sum = error_sum/float(train_len)    
+    rmse = np.sqrt(error_sum)
+    print "Oob Set RMSE:", rmse
+    
 print datetime.datetime.today()
 t2 = time()
 t_diff = t2-t1
