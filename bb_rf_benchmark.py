@@ -43,8 +43,9 @@ def get_date_dataframe(date_column):
     return pd.DataFrame({
         "SaleYear": [d.year for d in date_column],
         "SaleMonth": [d.month for d in date_column],
+	"SaleWkDay": [d.isocalendar()[2] for d in date_column],
         "SaleDay": [d.day for d in date_column],
-        "SaleWkDay": [d.isocalendar()[2] for d in date_column],
+        
         # "SaleYrWk": [d.isocalendar()[1] for d in date_column],
         "SaleYearMo3":[str((d + relativedelta(months = -3)).month) +
                        "/1/" + str((d + relativedelta(months = -3)).year) for d in date_column],
@@ -100,7 +101,7 @@ def map_columns(col, d, data, data_out):
     #data.drop([col], axis =1)
     return data_out
 
-col_list = ["ProductSize","UsageBand",'fiProductClassDesc'] # "ProductGroup"
+col_list = ["ProductSize"] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
 # referenced in clean_columns and final col parsing
 
 def clean_columns(data, data_out):
@@ -134,7 +135,7 @@ def clean_columns(data, data_out):
     		year_new_arr.append(yearmade)
             data['YearsAge'] = new_arr
 	    data[col] = year_new_arr
-            del data["YearMade"]
+            #del data["YearMade"]
 	    # might need to use the new mfg year later
         
         elif col == "ProductSize":
@@ -143,72 +144,82 @@ def clean_columns(data, data_out):
             d = {"Mini":0,"Compact":1,"Small":2,"":3,"Medium":4,"Large / Medium":5,"Large":6}
             data_out = map_columns(col, d, data, data_out)
         
-        elif col == "Tire_Size":
-            data[col]=data[col].fillna(value =0)
-            new_arr = []
-            for x in data[col]:
-                if x != 0 and x == "None":
-                    repl = string.replace(string.replace(str(x), "\"",""), "'","")
-                    try: new_arr.append(float(repl))
-                    except: new_arr.append(0)
-                else: new_arr.append(0)
-            data[col] = new_arr
-            # is float64 really better?
-            #data[col] = pd.Series([string.replace(string.replace(str(x), "\"",""), "'","") for x in data[col]])
-        
-        elif col == "Blade_Width":
-            data[col]=data[col].fillna(value =0)
-            #data[col]=data[col].fillna(value =0)
-            new_arr = []
-            for x in data[col]:
-                if x == "<12'": repl = 0
-                elif x == "None": repl = 13.5 # calculated average for MG ProductGroup (only relevant one)
-                else: repl = float(string.replace(str(x), "'",""))
-                new_arr.append(repl)
-            data[col] = new_arr
-        
-        elif col == "Stick_Length":
-            # Avg is close to None and na
-            new_arr=[]
-            for x in data[col]:
-                i =0
-                if pd.isnull(x) or x == "None": l = 0
-                else:
-                    repl = string.replace(string.replace(str(x), "\"",""), "'","")
-                    repl = string.split(str(repl)," ")
-                    ft , inches = repl[0], repl[1]
-                    #if i < 10: print repl
-                    l = 12*float(ft) + float(inches)
-                new_arr.append((int(round(l,1))))
-            data[col] = new_arr # pd.Series(new_arr, dtype = 'float16')
-        
-        elif col == "Undercarriage_Pad_Width":
-            data[col]=data[col].fillna(value =0)
-            #print data[col][0:10]
-            #print data[col]
-            s = np.unique(x for x in data[col])
-            #print "unique values for undercarriage pad width", s
-            new_arr = []
-            for x in data[col]:
-                repl = string.replace(str(x), " inch","")
-                try:new_arr.append(int(round(float(repl),0)))
-                except:
-                    new_arr.append(0)
-            #data[col] = pd.Series([string.replace(str(x), " inch","") for x in data[col] ])
-            data[col] = new_arr
-        # to do
-        # Stick_Length : 22 : ['nan' '10\' 10"' '10\' 2"' '10\' 6"' '11\' 0"' '11\' 10"' '12\' 10"'
-
-        elif col == "Backhoe_Mounting":
-            # fillna doesn't really work here?
-            new_arr = []
-            for x in data[col]:
-                if x == "None": new_arr.append(x)
-                elif x != "Yes": new_arr.append("")
-                else:new_arr.append("Yes")
-                #arr.append("") if x != "Yes" else "Yes"
-            data[col] =new_arr
-            #data[col] = ["" for x in data[col] if x != "Yes"]
+	elif col == "Backhoe_Mounting":
+		# fillna doesn't really work here?
+		new_arr = []
+		for x in data[col]:
+		    if x == "None": new_arr.append(x)
+		    elif x != "Yes": new_arr.append("")
+		    else:new_arr.append("Yes")
+		    #arr.append("") if x != "Yes" else "Yes"
+		data[col] =new_arr
+		#data[col] = ["" for x in data[col] if x != "Yes"]
+	#elif col == "saledate":
+	    #print col
+	    #data["SaleMonth"]= [d.month for d in data[col]]
+	    #data["SaleWkDay"]= [d.isocalendar()[2] for d in data[col]]
+	
+	if 0:
+	    if col == "Tire_Size":
+		data[col]=data[col].fillna(value =0)
+		new_arr = []
+		for x in data[col]:
+		    if x != 0 and x == "None":
+			repl = string.replace(string.replace(str(x), "\"",""), "'","")
+			try: new_arr.append(float(repl))
+			except: new_arr.append(0)
+		    else: new_arr.append(0)
+		data[col] = new_arr
+		# is float64 really better?
+		#data[col] = pd.Series([string.replace(string.replace(str(x), "\"",""), "'","") for x in data[col]])
+	    
+	    elif col == "Blade_Width":
+		data[col]=data[col].fillna(value =0)
+		#data[col]=data[col].fillna(value =0)
+		new_arr = []
+		for x in data[col]:
+		    if x == "<12'": repl = 0
+		    elif x == "None": repl = 13.5 # calculated average for MG ProductGroup (only relevant one)
+		    else: repl = float(string.replace(str(x), "'",""))
+		    new_arr.append(repl)
+		data[col] = new_arr
+	    
+	    elif col == "Stick_Length":
+		# Avg is close to None and na
+		new_arr=[]
+		for x in data[col]:
+		    i =0
+		    if pd.isnull(x) or x == "None": l = 0
+		    else:
+			repl = string.replace(string.replace(str(x), "\"",""), "'","")
+			repl = string.split(str(repl)," ")
+			ft , inches = repl[0], repl[1]
+			#if i < 10: print repl
+			l = 12*float(ft) + float(inches)
+		    new_arr.append((int(round(l,1))))
+		data[col] = new_arr # pd.Series(new_arr, dtype = 'float16')
+	    
+	    elif col == "Undercarriage_Pad_Width":
+		data[col]=data[col].fillna(value =0)
+		#print data[col][0:10]
+		#print data[col]
+		s = np.unique(x for x in data[col])
+		#print "unique values for undercarriage pad width", s
+		new_arr = []
+		for x in data[col]:
+		    repl = string.replace(str(x), " inch","")
+		    try:new_arr.append(int(round(float(repl),0)))
+		    except:
+			new_arr.append(0)
+		#data[col] = pd.Series([string.replace(str(x), " inch","") for x in data[col] ])
+		data[col] = new_arr
+	    # to do
+	    # Stick_Length : 22 : ['nan' '10\' 10"' '10\' 2"' '10\' 6"' '11\' 0"' '11\' 10"' '12\' 10"'
+		
+	    # Less Important
+	    if col == "UsageBand":
+		d = {"Low":0, "":1,"Medium":2,"High":3}
+		data_out = map_columns(col, d, data, data_out)
         
         # Create letters only model
         if col == 'fiBaseModel':
@@ -288,10 +299,7 @@ def clean_columns(data, data_out):
             #max_avg = np.median(ma.masked_values(power_max_l,""))
             #min_avg = np.median(ma.masked_values(power_min_l, ""))
         
-        # Less Important
-        if col == "UsageBand":
-            d = {"Low":0, "":1,"Medium":2,"High":3}
-            data_out = map_columns(col, d, data, data_out)
+        
             
             # Old Method
             #m = [(v, k) for k, v in d.iteritems()]
@@ -358,23 +366,17 @@ def data_to_fea():
     columns.remove("SalePrice")
     columns.remove("saledate")
     for col in columns:
-      #try:
-        # ignore these ones  ["ProductGroup","ProductSize","UsageBand"]
         # these deleted already["ProductGroupDesc", "fiProductClassDesc"]
-        #if 0:
-        #if col == "Coupler_System":
-        #if col in ['fiBaseModel', 'fiModelDesc']: # Testing
         if col not in col_list : # REAL ONE
             
         # col_list = ["ProductSize","UsageBand",'fiProductClassDesc'] # "ProductGroup"
         #if col == "Backhoe_Mounting": # Testing - error in the fillna "convert string to float" but why?
-            # error with BladeExtension
-            #print test[col][0:25]
             #print "starting", col
             if col == 'fiBaseModel': # Special case
                 train[col] = [str(x).strip() for x in train[col].values]
                 test[col] = [str(x).strip() for x in test[col].values]
             
+	    # Binarize these, even if numerical
             if col  in [ 'fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'state',
                         'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleMonth', "SaleWkDay"] :
             #if col in ['fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'Enclosure', 'MfgID']:
@@ -432,10 +434,6 @@ def data_to_fea():
                     else:
                         # Regular dumb indexing
                         mapping = pd.Series([x[0] for x in enumerate(s)], index = s) # Original code
-                        
-                        # Faster method to add col
-                        #print "mapping col"
-                        
                         
                         train_fea[col] = train[col].map(mapping)
                         test_fea[col] = test[col].map(mapping)
