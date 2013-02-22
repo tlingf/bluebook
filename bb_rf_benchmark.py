@@ -228,7 +228,7 @@ def clean_columns(data, data_out):
             for x in data[col]:
                 # Find letters only at beginning of name
                 try:
-                    m = re.search('[a-zA-Z]',x)
+                    m = re.search('[a-zA-Z]*',x)
                     if m is not None:
                         model_letters.append(m.group(0))
                     else: model_letters.append("")
@@ -560,8 +560,8 @@ if use_wiserf == 1:
     rf = WiseRF(n_estimators=50) # Doesn't work right now
 elif run_ml == 1:
     print "SK Learn Running Forest"
-    if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=-1, compute_importances = True, oob_score = True)
-    else: rf = RandomForestRegressor(n_estimators=100, n_jobs=-1, compute_importances = True, oob_score = True)
+    if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=-1, compute_importances = True)
+    else: rf = RandomForestRegressor(n_estimators=100, n_jobs=-1, compute_importances = True)
     #print "Learn Gradient Boosting" # Slower
     #rf = GradientBoostingRegressor(subsample = .67) #n_estimators = 100 by default # Cannot parallelize
     
@@ -589,8 +589,8 @@ for fea in imp:
         if fea[1] > 0.01:
             print fea[0], "|", fea[1]
             
-print "oob score:", rf.oob_score_
-print "score", rf.score(train_fea, train_Y)
+#print "oob score:", rf.oob_score_
+#print "score", rf.score(train_fea, train_Y)
 logger.write("\n" + comment+ "\n")
 #logger.write("oob score:" +str( rf.oob_score_)+ "\n")
 
