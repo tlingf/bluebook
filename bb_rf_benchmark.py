@@ -249,9 +249,9 @@ def clean_columns(data, data_out):
 		try:
 		    n = re.search('[a-zA-Z]*([1-9]*)',x) # only take adjacent numbers
 		    if n is not None:
-			model_n.append(m.group(0))
-		    else: model_n.append("")
-		except TypeError: model_n.append("")
+			model_n.append(float(m.group(0)))
+		    else: model_n.append(0)
+		except TypeError: model_n.append(0)
             data['fiBaseModelL'] = model_letters
 	    data['fiBaseModelN'] = model_n
         
