@@ -30,7 +30,7 @@ comment = sys.argv[1]
 # figure out avg values of na values for all col's
 # why is stick length mean so high
 
-testing = 0
+testing = 1
 run_ml = 1
 use_wiserf =  0 # Doesn't work
 #run_ml = 1
@@ -633,11 +633,12 @@ if testing == 1:
     rmse = np.sqrt(error_sum)
     print "Oob Set RMSE:", rmse
 
-
-if testing == 1:
-    csv_p = csv.writer(open('out/rf_train_Y.csv','wb'))
-    for i in xrange(len(train_predict)):
-	csv_p.writerow([train_predict[i], train_Y[i]])
+train_fea["prediction"] = train_predict
+train_fea["actual"] = train_Y
+test[["SalesID", "SalePrice"]].to_csv('out/rf_train_Y.csv')
+#csv_p = csv.writer(open('out/rf_train_Y.csv','wb'))
+#for i in xrange(len(train_predict)):
+    #csv_p.writerow([train_predict[i], train_Y[i]])
 
 print datetime.datetime.today()
 t2 = time()
