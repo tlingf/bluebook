@@ -160,19 +160,19 @@ def clean_columns(data, data_out):
 	    #data["SaleWkDay"]= [d.isocalendar()[2] for d in data[col]]
 	
 	# Better as binary value, not converted to value
-	elif col == "Tire_Size":
-		data[col]=data[col].fillna(value =0)
-		new_arr = []
-		for x in data[col]:
-		    if x != 0 and x == "None":
-			repl = string.replace(string.replace(str(x), "\"",""), "'","")
-			try: new_arr.append(float(repl))
-			except: new_arr.append(0)
-		    else: new_arr.append(0)
-		mean = np.median([x for x in new_arr if x > 0])
-		data[col] = new_arr
-		data[col] = data[col].replace(0,mean)
-	
+	#elif col == "Tire_Size":
+	#	data[col]=data[col].fillna(value =0)
+	#	new_arr = []
+	#	for x in data[col]:
+	#	    if x != 0 and x == "None":
+	#		repl = string.replace(string.replace(str(x), "\"",""), "'","")
+	#		try: new_arr.append(float(repl))
+	#		except: new_arr.append(0)
+	#	    else: new_arr.append(0)
+	#	mean = np.median([x for x in new_arr if x > 0])
+	#	data[col] = new_arr
+	#	data[col] = data[col].replace(0,mean)
+	#	print data[col]
 	
 	if 0:
 	    
