@@ -30,7 +30,7 @@ comment = sys.argv[1]
 # figure out avg values of na values for all col's
 # why is stick length mean so high
 
-testing = 1
+testing = 0
 run_ml = 1
 use_wiserf =  0 # Doesn't work
 #run_ml = 1
@@ -101,7 +101,7 @@ def map_columns(col, d, data, data_out):
     #data.drop([col], axis =1)
     return data_out
 
-col_list = ["ProductSize",'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
+col_list = ["ProductSize"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
 # referenced in clean_columns and final col parsing
 
 def clean_columns(data, data_out):
@@ -110,7 +110,7 @@ def clean_columns(data, data_out):
     # Reduces storage?
     data = data.replace("None or Unspecified","None")
     
-    drop_list = ["ProductGroupDesc"] #"fiModelDesc"]
+    drop_list = ["ProductGroupDesc","UsageBand"] #"fiModelDesc"]
     #ProductGroupDesc is just long desc for ProductGroup, repeat
     # fiModelDesc is repeat, and described in fiBaseModel + fiSecondaryModel + fiModelSeries
     # fiProductClassDesc is too long, e.g. "Wheel Loader - 110.0 to 120.0 Horsepower"
@@ -159,8 +159,8 @@ def clean_columns(data, data_out):
 	    #data["SaleMonth"]= [d.month for d in data[col]]
 	    #data["SaleWkDay"]= [d.isocalendar()[2] for d in data[col]]
 	
-	if 0:
-	    if col == "Tire_Size":
+	# Better as binary value, not converted to value
+	elif col == "Tire_Size":
 		data[col]=data[col].fillna(value =0)
 		new_arr = []
 		for x in data[col]:
@@ -169,11 +169,18 @@ def clean_columns(data, data_out):
 			try: new_arr.append(float(repl))
 			except: new_arr.append(0)
 		    else: new_arr.append(0)
+		mean = np.median([x for x in new_arr if x > 0])
 		data[col] = new_arr
+		data[col] = data[col].replace(0,mean)
+	
+	
+	if 0:
+	    
 		# is float64 really better?
 		#data[col] = pd.Series([string.replace(string.replace(str(x), "\"",""), "'","") for x in data[col]])
 	    
-	    elif col == "Blade_Width":
+	    # Better left alone, not converted to value
+	    if col == "Blade_Width":
 		data[col]=data[col].fillna(value =0)
 		#data[col]=data[col].fillna(value =0)
 		new_arr = []
@@ -184,6 +191,7 @@ def clean_columns(data, data_out):
 		    new_arr.append(repl)
 		data[col] = new_arr
 	    
+	    # almost the same.. keep as is, messy value
 	    elif col == "Stick_Length":
 		# Avg is close to None and na
 		new_arr=[]
@@ -198,7 +206,9 @@ def clean_columns(data, data_out):
 			l = 12*float(ft) + float(inches)
 		    new_arr.append((int(round(l,1))))
 		data[col] = new_arr # pd.Series(new_arr, dtype = 'float16')
+		# Stick_Length : 22 : ['nan' '10\' 10"' '10\' 2"' '10\' 6"' '11\' 0"' '11\' 10"' '12\' 10"'
 	    
+	    # barely better.. keep as is?
 	    elif col == "Undercarriage_Pad_Width":
 		data[col]=data[col].fillna(value =0)
 		#print data[col][0:10]
@@ -214,30 +224,39 @@ def clean_columns(data, data_out):
 		#data[col] = pd.Series([string.replace(str(x), " inch","") for x in data[col] ])
 		data[col] = new_arr
 	    # to do
-	    # Stick_Length : 22 : ['nan' '10\' 10"' '10\' 2"' '10\' 6"' '11\' 0"' '11\' 10"' '12\' 10"'
+	    
 		
-	    # Less Important
-	    if col == "UsageBand":
-		d = {"Low":0, "":1,"Medium":2,"High":3}
-		data_out = map_columns(col, d, data, data_out)
+	# Better as value
+	if col == "UsageBand":
+	    data[col]=data[col].fillna(value ="")
+	    d = {"Low":0, "":1,"Medium":2,"High":3}
+	    data_out = map_columns(col, d, data, data_out)
         
         # Create letters only model
-        if col == 'fiBaseModel':
+        elif col == 'fiBaseModel':
             data[col]=data[col].fillna(value ="")
             model_letters = []
+	    model_n = []
             for x in data[col]:
                 # Find letters only at beginning of name
                 try:
-                    m = re.search('[a-zA-Z]*',x)
+                    m = re.search('[1-9]*([a-zA-Z]*)',x) # only take adjacent letters
                     if m is not None:
                         model_letters.append(m.group(0))
                     else: model_letters.append("")
                 except TypeError: # Not sure what this is
                     model_letters.append("")
+		try:
+		    n = re.search('[a-zA-Z]*([1-9]*)',x) # only take adjacent numbers
+		    if n is not None:
+			model_n.append(m.group(0))
+		    else: model_n.append("")
+		except TypeError: model_n.append("")
             data['fiBaseModelL'] = model_letters
+	    data['fiBaseModelN'] = model_n
         
-        # Get manufacturing ID based on MachineID
-        if col == "MachineID":
+        # Get manufacturing ID, power min, power max, and unit based on MachineID
+        elif col == "MachineID":
             error_count =0
             
             mfgids = []
@@ -249,61 +268,49 @@ def clean_columns(data, data_out):
                 try:
                     appendix_match = appendix[x]
                     mfgid_temp, power_u, power_min, power_max = tuple(appendix_match)
-                    #if mfgid_temp  in [0,26, 43, 25, 103, 121, 74, 55, 92, 99, 176, 750, 135, 54, 166, 95, 46, 158, 86, 405]: # most freq, > 1K
-                        #mfgid = mfgid_temp
-                        #mfgid2 = 0
-                    #else:
-                        #mfgid = 0
-                        #mfgid2 = mfgid
-                    if power_max == "" and power_min == "":power_max, power_min = 0,0
-                    elif  power_max == "" or pd.isnull(power_max): power_max = 0
+                    if power_max == "" and power_min == "":power_max, power_min = -1,-1
+		    # below line not needed since most of the time both are empty together
+                    elif  power_max == "" or pd.isnull(power_max): power_max = -1
                     elif power_max == 1000000: # when says e.g. "100+"
                         power_max = power_min
-                    if power_min == 0: power_min = power_max
-                    elif power_min == "":power_min = -1
-                except KeyError: mfgid, power_u, power_min, power_max = 0, "", 0, 0
-                #mfgids.append(mfgid) # default to 0
-                #mfgids2.append(mfgid2)
+                    #if power_min == 0: power_min = power_max
+                    #elif power_min == "":power_min = -1
+                except KeyError: mfgid, power_u, power_min, power_max = 0, "", -1, -1
                 mfgids.append(mfgid_temp)
-                try:
-                    power_max_l.append(float(power_max))
-                    power_min_l.append(float(power_min))
-                except:
-                    print "error", power_max
-                    raise KeyboardInterrupt
+		
+		power_max_l.append(float(power_max))
+		power_min_l.append(float(power_min))
                 power_unit_l.append(power_u)
-            #mfgid = [appendix[x] for x in data[col]] 
+	    
             data['MfgID'] = mfgids
-            #data['MfgID2'] = mfgids2
             data['power_max'] = power_max_l
             data['power_min'] =  power_min_l
             data['power_u'] =  power_unit_l
+	    
+	    print "calculating pow2er min,max means"
+	    power_min_means = {}
+	    power_max_means = {}
+	    data["ProductSize"]=data["ProductSize"].fillna(value ="")
+	    for product in ["BL", "MG", "SSL", "TEX", "TTT", "WL"]:
+		#for productsize in [str(x) for x in range(7)]:
+		for productsize in ["","Mini","Compact","Small","","Medium","Large / Medium","Large"]:
+		    power_min_means[product + productsize] = np.mean( data[ (data["ProductGroup"] == product) &
+			(data["ProductSize"] == productsize) & (data["power_min"] >= 0)]["power_min"])
+		    power_max_means[product +productsize] = np.mean( data[ (data["ProductGroup"] == product) &
+			(data["ProductSize"] == productsize) & (data["power_max"] >= 0)]["power_max"])
+		    
+	    print "done calc power means"
+	    #print data["ProductSize"]
+	    for x in xrange(num_rows):
+		if data["power_min"][x] == -1:
+		    product = data["ProductGroup"][x]
+		    #productsize = data.xs(x)["ProductSize"]
+		    productsize = str(data["ProductSize"][x])
+		    #print productsize
+		    data["power_min"][x] = power_min_means[product + productsize]
+		    data["power_max"][x] = power_max_means[product + productsize]
+	    print "power_min: done populating empty"
             #data[["power_min", "power_max"]].to_csv('power_min_out', index=True)
-            # too slow
-            # Don't know a better way to do this
-            #data['power_max'] = power_max_l
-            #data['power_min'] =  power_min_l
-            # Guess missing values based on 
-            #for x in xrange(num_rows):
-            #    if power_max_l[x] == "":                    
-            #        # Find all vaues where Year Made, ProductGroup, manufacturer are same
-            #        similar_max = data[ (data['ProductGroup'] == data.xs(x)["ProductGroup"]) &
-            #                           (data['YearMade'] == data.xs(x)["YearMade"] ) & (data['power_max'] != "")
-            #                          ]["power_max"].astype(np.float)
-            #        power_max_l[x] = np.median(similar_max)
-            #    if power_min_l[x] == "":
-            #        similar_min = data[ (data['ProductGroup'] == data.xs(x)["ProductGroup"]) &
-            #                           (data['YearMade'] == data.xs(x)["YearMade"] )& (data['power_min'] != "")
-            #                          ]["power_min"].astype(np.float)
-            #        power_min_l[x] = np.median(similar_min)
-            #max_avg = np.median(ma.masked_values(power_max_l,""))
-            #min_avg = np.median(ma.masked_values(power_min_l, ""))
-        
-        
-            
-            # Old Method
-            #m = [(v, k) for k, v in d.iteritems()]
-            #mapping = pd.Series([x[0] for x in m], index = ["Low", "", "Medium", "High"])
     
     data = data.drop(col_list,axis =1)
             
@@ -368,7 +375,7 @@ def data_to_fea():
     for col in columns:
         # these deleted already["ProductGroupDesc", "fiProductClassDesc"]
         if col not in col_list : # REAL ONE
-            
+        #if col == "fiProductClassDesc":
         # col_list = ["ProductSize","UsageBand",'fiProductClassDesc'] # "ProductGroup"
         #if col == "Backhoe_Mounting": # Testing - error in the fillna "convert string to float" but why?
             #print "starting", col
@@ -378,7 +385,7 @@ def data_to_fea():
             
 	    # Binarize these, even if numerical
             if col  in [ 'fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'state',
-                        'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleMonth', "SaleWkDay"] :
+                        'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleMonth', "SaleWkDay", "fiProductClassDesc"] :
             #if col in ['fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'Enclosure', 'MfgID']:
                 #print "binarize", col
                 if col in ['auctioneerID', 'MfgID']:
@@ -398,7 +405,7 @@ def data_to_fea():
                 #
                 #print "counting unique"
                 s = np.unique(x for x in np.append(train[col].values,test[col].values))
-                #print  col, ":", len(s), ":", s[:10]
+                print  col, ":", len(s), ":", s[:10]
                 
                 # Binarize these ones:
                 if len(s) >2 and len(s) < 100 and col not in "Thumb": # in [ 'fiBaseModel']
@@ -412,7 +419,7 @@ def data_to_fea():
                 # Just enumerate these
                 else:
                 #if 1:
-                    #print "enumerate",col
+                    print "enumerate",col
                     #Don't need below line for full data set usually
                     if test[col].dtype != np.dtype(object):
                         #print "changing test obj type"
@@ -469,27 +476,10 @@ def data_to_fea():
                 #if col == 'power_min':
                 #    train[col] = train[col].fillna(value =0)
                 #    test[col] = test[col].fillna(value=0)
-                #    
-                #    train_fea[col] = train[col]
-                #    test_fea[col] = test[col]
-                #    #test_fea[col] = test[col]
-                #    print "blank for power min", len(train[train["power_min"] == 0])
-                #    train_fea = train_fea[train_fea["power_min"] != 0] # try this out # now at the top
-                #    train = train[train["power_min"] != 0] # try this out # now at the top
-                #    #test = test[test["power_min"] != 0]
-                    #test_fea = test_fea[test_fea["power_min"] != 0]
-                    
-                    #print "reindexing"
-                    #
-                    #train_len = train_fea.shape[0]
-                    #print "train len", train_len
-                    #train = train.reindex(range(train_len))
-                    #train_fea = train_fea.reindex(range(train_len))
-                    
+
                 if col in ["Stick_Length"]:
                     train[col] = train[col].replace(0,train_m)
                     test[col] = test[col].replace(0,test_m)
-                # maybe special case for power_min when 0 (nan) but this isn't common
                 else:
                     train[col] = train[col].fillna(value =train_m)
                     test[col] = test[col].fillna(value=test_m)
@@ -561,7 +551,7 @@ if use_wiserf == 1:
 elif run_ml == 1:
     print "SK Learn Running Forest"
     if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=-1, compute_importances = True)
-    else: rf = RandomForestRegressor(n_estimators=100, n_jobs=-1, compute_importances = True)
+    else: rf = RandomForestRegressor(n_estimators=50, n_jobs=-1, compute_importances = True)
     #print "Learn Gradient Boosting" # Slower
     #rf = GradientBoostingRegressor(subsample = .67) #n_estimators = 100 by default # Cannot parallelize
     
@@ -573,7 +563,8 @@ elif run_ml == 1:
     predictions = rf.predict(test_fea)
     predictions = np.exp(predictions)
 #print "Mean Squared Error:", np.sqrt(mean_squared_error(train_Y, rf.predict(train_fea)))
-util.write_submission("submit_rf" + comment + ".csv", predictions)
+if testing == 0: util.write_submission("submit_rf" + comment + ".csv", predictions)
+
 imp = sorted(zip(train_fea.columns, rf.feature_importances_), key=lambda tup: tup[1], reverse=True)
 logger = open("out/rf_log.txt","a")
 
@@ -602,22 +593,16 @@ def is_numeric(obj):
 
 # RMSE
 print "Calculating RMSE"
-#
-#train_predict = rf.predict(train_validate_fea)
-#train_predict = np.exp(train_predict)
-
 
 train_predict = rf.predict(train_fea)
 train_predict = np.exp(train_predict)
-train_Y = np.exp(train_Y)
     
-                    
-
 print "Length of train_predict", len(train_predict)
 #print "Length of train_Y", len(train_Y)
 #print "train_predict", train_predict
 #print "train_Y", train_Y
 train_len = len(train_predict)
+train_Y = np.exp(train_Y)
 error_sum = 0
 i =0
 for i in xrange(train_len):
@@ -629,6 +614,7 @@ for i in xrange(train_len):
 error_sum = error_sum/float(train_len)    
 rmse = np.sqrt(error_sum)
 print "Train Set RMSE:", rmse
+
 
 if testing == 1:
     train_predict = predictions
@@ -646,7 +632,13 @@ if testing == 1:
     error_sum = error_sum/float(train_len)    
     rmse = np.sqrt(error_sum)
     print "Oob Set RMSE:", rmse
-    
+
+
+if testing == 1:
+    csv_p = csv.writer(open('out/rf_train_Y.csv','wb'))
+    for i in xrange(len(train_predict)):
+	csv_p.writerow([train_predict[i], train_Y[i]])
+
 print datetime.datetime.today()
 t2 = time()
 t_diff = t2-t1
