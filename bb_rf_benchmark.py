@@ -30,7 +30,7 @@ comment = sys.argv[1]
 # figure out avg values of na values for all col's
 # why is stick length mean so high
 
-testing = 1
+testing = 0
 run_ml = 1
 use_wiserf =  0 # Doesn't work
 #run_ml = 1
@@ -42,8 +42,8 @@ t1 = time()
 def get_date_dataframe(date_column):
     return pd.DataFrame({
         "SaleYear": [d.year for d in date_column],
-        "SaleMonth": [d.month for d in date_column],
-	"SaleWkDay": [d.isocalendar()[2] for d in date_column],
+        #"SaleMonth": [d.month for d in date_column],
+	#"SaleWkDay": [d.isocalendar()[2] for d in date_column],
         "SaleDay": [d.day for d in date_column],
         
         # "SaleYrWk": [d.isocalendar()[1] for d in date_column],
@@ -101,7 +101,8 @@ def map_columns(col, d, data, data_out):
     #data.drop([col], axis =1)
     return data_out
 
-col_list = ["ProductSize"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
+# These already added to the "out"
+col_list = ["ProductSize", "UsageBand"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
 # referenced in clean_columns and final col parsing
 
 def clean_columns(data, data_out):
@@ -110,7 +111,7 @@ def clean_columns(data, data_out):
     # Reduces storage?
     data = data.replace("None or Unspecified","None")
     
-    drop_list = ["ProductGroupDesc","UsageBand"] #"fiModelDesc"]
+    drop_list = ["ProductGroupDesc"]# ,"UsageBand"] #"fiModelDesc"]
     #ProductGroupDesc is just long desc for ProductGroup, repeat
     # fiModelDesc is repeat, and described in fiBaseModel + fiSecondaryModel + fiModelSeries
     # fiProductClassDesc is too long, e.g. "Wheel Loader - 110.0 to 120.0 Horsepower"
@@ -154,27 +155,29 @@ def clean_columns(data, data_out):
 		    #arr.append("") if x != "Yes" else "Yes"
 		data[col] =new_arr
 		#data[col] = ["" for x in data[col] if x != "Yes"]
-	#elif col == "saledate":
+	elif col == "saledate":
 	    #print col
-	    #data["SaleMonth"]= [d.month for d in data[col]]
-	    #data["SaleWkDay"]= [d.isocalendar()[2] for d in data[col]]
+	    data["SaleMonth"]= [d.month for d in data[col]]
+	    data["SaleWkDay"]= [d.isocalendar()[2] for d in data[col]]
 	
 	# Better as binary value, not converted to value
 	#elif col == "Tire_Size":
 	#	data[col]=data[col].fillna(value =0)
 	#	new_arr = []
+	#	print data[col]
 	#	for x in data[col]:
-	#	    if x != 0 and x == "None":
+	#	    if x != 0 and x == "None" and not pd.isnull(x):
 	#		repl = string.replace(string.replace(str(x), "\"",""), "'","")
 	#		try: new_arr.append(float(repl))
 	#		except: new_arr.append(0)
 	#	    else: new_arr.append(0)
 	#	mean = np.median([x for x in new_arr if x > 0])
-	#	data[col] = new_arr
+	#	print "tire size mean", mean
+        #       data[col] = new_arr
 	#	data[col] = data[col].replace(0,mean)
-	#	print data[col]
+	#	print "Tire_Size", data[col]
 	
-	if 0:
+	if 1:
 	    
 		# is float64 really better?
 		#data[col] = pd.Series([string.replace(string.replace(str(x), "\"",""), "'","") for x in data[col]])
@@ -231,29 +234,39 @@ def clean_columns(data, data_out):
 	    data[col]=data[col].fillna(value ="")
 	    d = {"Low":0, "":1,"Medium":2,"High":3}
 	    data_out = map_columns(col, d, data, data_out)
-        
+        elif col == 'fiModelSeries':
+	    data[col] = data[col].fillna(value = "")
+	    data[col] = [str(x).strip() for x in data[col].values]
         # Create letters only model
         elif col == 'fiBaseModel':
             data[col]=data[col].fillna(value ="")
-            model_letters = []
+            
+            data[col] = [str(x).strip() for x in data[col].values]
+	    model_letters = []
+	    model_l1 = []
 	    model_n = []
             for x in data[col]:
                 # Find letters only at beginning of name
                 try:
                     m = re.search('([a-zA-Z]*)([1-9]*)',x) # only take adjacent letters
                     if m is not None:
-                        model_letters.append(m.group(1))
+			letters = m.group(1)
+                        model_letters.append(letters)
+			if len(letters) >= 1: model_l1.append(letters[0])
+			else: model_l1.append("")
 			if m.group(2) != "": model_n.append(float(m.group(2)))
 			else: model_n.append(0)
                     else: 
 			model_letters.append("")
+			model_l1.append("")
 			model_n.append(0)
                 except TypeError: # Not sure what this is
                     model_letters.append("")
+		    model_l1.append("")
 		    model_n.append(0)
-            data['fiBaseModelL'] = model_letters
+            #data['fiBaseModelL'] = model_letters
 	    data['fiBaseModelN'] = model_n
-        
+            data['fiBaseModelL1'] = model_l1 
         # Get manufacturing ID, power min, power max, and unit based on MachineID
         elif col == "MachineID":
             error_count =0
@@ -365,20 +378,20 @@ def data_to_fea():
     for col in columns:
         # these deleted already["ProductGroupDesc", "fiProductClassDesc"]
         if col not in col_list : # REAL ONE
-        #if col == "fiProductClassDesc":
+        #if col == "fiModelSeries":
         # col_list = ["ProductSize","UsageBand",'fiProductClassDesc'] # "ProductGroup"
         #if col == "Backhoe_Mounting": # Testing - error in the fillna "convert string to float" but why?
             #print "starting", col
-            if col == 'fiBaseModel': # Special case
-                train[col] = [str(x).strip() for x in train[col].values]
-                test[col] = [str(x).strip() for x in test[col].values]
             
 	    # Binarize these, even if numerical
             if col  in [ 'fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'state',
                         'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleMonth', "SaleWkDay", "fiProductClassDesc"] :
             #if col in ['fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'Enclosure', 'MfgID']:
-                #print "binarize", col
-                if col in ['auctioneerID', 'MfgID']:
+                print "binarize", col
+		
+                s = np.unique(x for x in np.append(train[col].values,test[col].values))
+                print col, ":", len(s), ":",s[:10]
+		if col in ['auctioneerID', 'MfgID']:
                     train[col]=train[col].fillna(value =0)
                     test[col] = test[col].fillna(value = 0)
                 else:
@@ -496,9 +509,6 @@ def data_to_fea():
       #except:
             #print "Error with col", col
 
-    # This isn't really necessary
-    train_fea=train_fea.fillna(method='pad')
-    test_fea = test_fea.fillna(method ='pad')
     #train_fea = train_fea[train_fea["SaleYear"] <  2011] # try this out # now at the top
     #train = train[train["saledate"] <= datetime.datetime(2011,1,1)] # try this out # now at the top
 
@@ -525,8 +535,8 @@ if use_wiserf == 1:
     rf = WiseRF(n_estimators=50) # Doesn't work right now
 elif run_ml == 1:
     print "SK Learn Running Forest"
-    if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=-1, compute_importances = True)
-    else: rf = RandomForestRegressor(n_estimators=100, n_jobs=-1, compute_importances = True)
+    if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
+    else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
     #print "Learn Gradient Boosting" # Slower
     #rf = GradientBoostingRegressor(subsample = .67) #n_estimators = 100 by default # Cannot parallelize
     
@@ -584,6 +594,11 @@ rmse = np.sqrt(error_sum)
 print "Train Set RMSE:", rmse
 logger.write("Train Set RMSE:" + str(rmse)+ "\n")
 
+train_fea["prediction"] = train_predict
+train_fea["actual"] = train_Y
+#print "Writing to csv"
+#train_fea.to_csv('out/rf_train_Y.csv')
+print "Starting Oob RMSE"
 if testing == 1:
     train_predict = predictions
     train_Y = [ x for x in test_Y]
@@ -596,9 +611,6 @@ if testing == 1:
     rmse = np.sqrt(error_sum)
     print "Oob Set RMSE:", rmse
     logger.write("RMSE:" + str(rmse)+ "\n")
-train_fea["prediction"] = train_predict
-train_fea["actual"] = train_Y
-train_fea.to_csv('out/rf_train_Y.csv')
 #csv_p = csv.writer(open('out/rf_train_Y.csv','wb'))
 #for i in xrange(len(train_predict)):
     #csv_p.writerow([train_predict[i], train_Y[i]])
