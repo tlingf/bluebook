@@ -42,9 +42,9 @@ t1 = time()
 def get_date_dataframe(date_column):
     return pd.DataFrame({
         "SaleYear": [d.year for d in date_column],
-        #"SaleMonth": [d.month for d in date_column],
+        "SaleMonth": [d.month for d in date_column],
 	#"SaleWkDay": [d.isocalendar()[2] for d in date_column],
-        "SaleDay": [d.day for d in date_column],
+        #"SaleDay": [d.day for d in date_column],
         
         # "SaleYrWk": [d.isocalendar()[1] for d in date_column],
         "SaleYearMo3":[str((d + relativedelta(months = -3)).month) +
@@ -157,9 +157,9 @@ def clean_columns(data, data_out):
 		#data[col] = ["" for x in data[col] if x != "Yes"]
 	elif col == "saledate":
 	    #print col
-	    data["SaleMonth"]= [d.month for d in data[col]]
+	    #data["SaleMonth"]= [str(np.floor(d.month/2)) for d in data[col]]
 	    data["SaleWkDay"]= [d.isocalendar()[2] for d in data[col]]
-	
+	    data["SaleDay"]= [d.day for d in data[col]]
 	# Better as binary value, not converted to value
 	#elif col == "Tire_Size":
 	#	data[col]=data[col].fillna(value =0)
@@ -188,7 +188,7 @@ def clean_columns(data, data_out):
 		#data[col]=data[col].fillna(value =0)
 		new_arr = []
 		for x in data[col]:
-		    if x == "<12'": repl = 0
+		    if x == "<12'": repl = 10
 		    elif x == "None": repl = 13.5 # calculated average for MG ProductGroup (only relevant one)
 		    else: repl = float(string.replace(str(x), "'",""))
 		    new_arr.append(repl)
@@ -327,7 +327,28 @@ def clean_columns(data, data_out):
     return data, data_out
             
     #if data["UsageBand"]
+def newest_model(data):
+    # But is it newest at the time of sale??
+    col = "fiBaseModel"
+    model_max = {}
+    
+    s = np.unique(x for x in np.append(data['fiSecondaryDesc'].values))
+    
+    mapping = pd.Series([x[0] for x in enumerate(s)], index = s) # Original code
+    data['fiSecondaryDescE'] = data['fiSecondaryDesc'].map(mapping)
 
+    s = np.unique(x for x in np.append(data[col].values,test[col].values))
+    for model in s:
+	# For each model, find the max fiSecondaryDesc (letter after model)
+        model_max[model] = max(data[(data[col] == model)]['fiSecondaryDesc'] )
+    newest = []
+    for x in xrange(num_rows):
+        model = data[col]
+        if model_max[model] == data['fiSecondaryDesc']: newest.append(1)
+	else: newest.append(0)
+    data['newest'] = newest
+    return data
+ 
 def binarize_cols(col, train, test, train_fea, test_fea):
     """ Change categorical variables to binary columns"""
     lb_bm = preprocessing.LabelBinarizer()
@@ -378,15 +399,14 @@ def data_to_fea():
     for col in columns:
         # these deleted already["ProductGroupDesc", "fiProductClassDesc"]
         if col not in col_list : # REAL ONE
-        #if col == "fiModelSeries":
+        #if col == "fiBaseModelN":
         # col_list = ["ProductSize","UsageBand",'fiProductClassDesc'] # "ProductGroup"
         #if col == "Backhoe_Mounting": # Testing - error in the fillna "convert string to float" but why?
             #print "starting", col
             
 	    # Binarize these, even if numerical
-            if col  in [ 'fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'state',
-                        'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleMonth', "SaleWkDay", "fiProductClassDesc"] :
-            #if col in ['fiBaseModelL', 'ProductGroup', 'fiSecondaryDesc', 'fiSecondaryDesc', 'Enclosure', 'MfgID']:
+            if col  in [  'ProductGroup', 'state',
+                        'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleDay', "SaleWkDay", "fiProductClassDesc"] :
                 print "binarize", col
 		
                 s = np.unique(x for x in np.append(train[col].values,test[col].values))
@@ -407,7 +427,7 @@ def data_to_fea():
                 test[col] = test[col].fillna(value = "")
                 #
                 s = np.unique(x for x in np.append(train[col].values,test[col].values))
-                print  col, ":", len(s), ":", s[:10]
+                print  col, ":", len(s), ":", s
                 
                 # Binarize these ones:
                 if len(s) >2 and len(s) < 100 and col not in "Thumb": # in [ 'fiBaseModel']
@@ -441,7 +461,6 @@ def data_to_fea():
                     else:
                         # Regular dumb indexing
                         mapping = pd.Series([x[0] for x in enumerate(s)], index = s) # Original code
-                        
                         train_fea[col] = train[col].map(mapping)
                         test_fea[col] = test[col].map(mapping)
                         #train_fea[col] = np.log(train_fea[col]+1)

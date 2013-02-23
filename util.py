@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import csv
 
-testing = 1
+testing = 0
 def get_paths():
     """
     Redefine data_path and submissions_path here to run the benchmarks on your machine
