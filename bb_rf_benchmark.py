@@ -30,7 +30,7 @@ comment = sys.argv[1]
 # figure out avg values of na values for all col's
 # why is stick length mean so high
 
-testing = 0
+testing = 1
 run_ml = 1
 use_wiserf =  0 # Doesn't work
 #run_ml = 1
@@ -337,14 +337,16 @@ def newest_model(data):
     mapping = pd.Series([x[0] for x in enumerate(s)], index = s) # Original code
     data['fiSecondaryDescE'] = data['fiSecondaryDesc'].map(mapping)
 
-    s = np.unique(x for x in np.append(data[col].values,test[col].values))
-    for model in s:
-	# For each model, find the max fiSecondaryDesc (letter after model)
-        model_max[model] = max(data[(data[col] == model)]['fiSecondaryDesc'] )
     newest = []
+    print "Finding max model"
+    # New approach - find max for that date and model
     for x in xrange(num_rows):
-        model = data[col]
-        if model_max[model] == data['fiSecondaryDesc']: newest.append(1)
+	saledate = data['saledate'][x]
+        model = data['fiBaseModel'][x]
+	# Maybe add state if it's released by state, unless it's online
+	model_max = max(data[(data['fiBaseModel'] == model) / 
+		&& (data['saledate'] < saledate)]['fiSecondaryDescE'])
+        if model_max  == data['fiSecondaryDescE']: newest.append(1)
 	else: newest.append(0)
     data['newest'] = newest
     return data
