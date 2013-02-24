@@ -1,0 +1,506 @@
+YearsAge,0.097853908286789512
+ProductSize,0.078886815058511334
+Enclosure-EROPS w AC,0.057013235177557603
+tcpi,0.055517687403586563
+MfgID-26,0.042837666311790035
+ModelID,0.033206491885307075
+Enclosure-OROPS,0.027171327801302957
+ProductGroup-SSL,0.025244750884727277
+fiBaseModelN,0.022744406800105678
+YearMade,0.020830867528439129
+power_min,0.020677519969215886
+fiModelDesc,0.020660028737609245
+SaleMonth,0.019538973413931352
+MachineID,0.01455770565892436
+power_max,0.013011563811054587
+MfgID-40,0.0085763899152558176
+auctioneerID-11.0,0.0073779169726427571
+Transmission-Powershuttle,0.0072960492999553216
+Undercarriage_Pad_Width,0.0064286604447293862
+SaleDay-7,0.0062652232950859256
+"fiProductClassDesc-Track Type Tractor, Dozer - 20.0 to 75.0 Horsepower",0.0062535189154006958
+auctioneerID-28.0,0.006155558716336211
+state-Maryland,0.0060932723288704641
+power_u-Operating Capacity - Lbs,0.006000374384297796
+Drive_System-Two Wheel Drive,0.0058635566518803299
+"fiProductClassDesc-Hydraulic Excavator, Track - 66.0 to 90.0 Metric Tons",0.0057846239533427823
+MfgID-1426,0.005730523545641397
+Ripper-,0.005726827762648737
+power_u-,0.0055366869020721391
+MfgID-109,0.0055286965503777222
+MfgID-122,0.0054276540718859101
+"fiProductClassDesc-Hydraulic Excavator, Track - 21.0 to 24.0 Metric Tons",0.0052688293872935957
+"fiProductClassDesc-Hydraulic Excavator, Track - 14.0 to 16.0 Metric Tons",0.0052531117573971654
+MfgID-1020,0.0051422880405069789
+"fiProductClassDesc-Hydraulic Excavator, Track - 33.0 to 40.0 Metric Tons",0.0050402767292223507
+fiModelSeries--16,0.0048976188245513199
+SaleDay-11,0.0048300489573636475
+Hydraulics_Flow-,0.004775747861447765
+SaleDay-28,0.0047649755305441306
+"fiProductClassDesc-Hydraulic Excavator, Track - 16.0 to 19.0 Metric Tons",0.0044487934561794271
+MfgID-111,0.0043669955922859991
+Stick_Length,0.0043300042870643299
+fiModelSeries--7,0.0041533084259543504
+fiBaseModel,0.0039023839457154614
+MfgID-55,0.003826563197627403
+state-Florida,0.0038259492566151605
+SaleDay-15,0.0038168757651452119
+Enclosure-EROPS,0.0038081935255958902
+"fiProductClassDesc-Hydraulic Excavator, Track - 50.0 to 66.0 Metric Tons",0.0037844696302099952
+"fiProductClassDesc-Track Type Tractor, Dozer - 105.0 to 130.0 Horsepower",0.0037574046624319324
+MfgID-74,0.0036504491804625365
+SaleDay-22,0.003650008366457699
+"fiProductClassDesc-Track Type Tractor, Dozer - 260.0 + Horsepower",0.0035432499690698726
+fiModelDescriptor-3C,0.0035069696181005338
+fiModelDescriptor-K,0.0034482146039052563
+fiModelSeries--2,0.0033173775035029453
+MfgID-86,0.0032229215902207626
+"fiProductClassDesc-Hydraulic Excavator, Track - Unidentified",0.0031832481514147202
+fiProductClassDesc-Wheel Loader - 135.0 to 150.0 Horsepower,0.0031419232695893019
+MfgID-92,0.0031240303150576239
+SaleWkDay-1,0.0030624403932988913
+"fiProductClassDesc-Hydraulic Excavator, Track - 40.0 to 50.0 Metric Tons",0.0030614331146651469
+fiModelSeries--8,0.0030516042516135077
+SaleDay-26,0.0030478187916538257
+MfgID-43,0.0030018717867408983
+SaleDay-24,0.0029980050154492766
+state-Iowa,0.0029495787690933771
+Tire_Size-,0.0029238329544467624
+MachineHoursCurrentMeter,0.0028487595517038373
+MfgID-101,0.0027972989826233708
+SaleDay-5,0.0027526578756456531
+MfgID-87,0.0027325937335635916
+state-West Virginia,0.0026543768671610413
+state-Illinois,0.0026260552347548895
+"fiProductClassDesc-Hydraulic Excavator, Track - 24.0 to 28.0 Metric Tons",0.0025813345131136889
+MfgID-99,0.0024942344737255017
+auctioneerID-20.0,0.0024830105729435454
+fiProductClassDesc-Wheel Loader - 100.0 to 110.0 Horsepower,0.002476401319946143
+fiModelSeries-7,0.0024444062121648071
+MfgID-176,0.0024429087621074983
+UsageBand,0.0024384603534530879
+auctioneerID-18.0,0.0024214977860756316
+Hydraulics-4 Valve,0.0024038612355970165
+MfgID-46,0.0023979731504946925
+fiModelSeries-,0.0023611683807517963
+state-New Hampshire,0.0023573159686158906
+MfgID-47,0.0023330110279538353
+Scarifier,0.0023211135274462764
+state-Idaho,0.00232056603964944
+SaleDay-27,0.0022988603240377079
+fiModelSeries--6,0.0022818505638613189
+state-Oklahoma,0.0022764450489233608
+state-New Jersey,0.0022755829713697142
+Blade_Width,0.0022331098500939102
+Stick-Extended,0.0021989246146794637
+fiBaseModelL1-A,0.0021331483085383542
+ProductGroup-MG,0.0021276890235501851
+fiBaseModelL1-K,0.0020890887858883971
+fiModelDescriptor-E,0.0020622736175147922
+MfgID-25,0.0019566808049106942
+auctioneerID-3.0,0.0019543592543566318
+datasource,0.0019532922788435582
+state-Washington,0.0019415276398083688
+state-Minnesota,0.0019408940200407404
+state-Wisconsin,0.0018988757065551835
+fiModelSeries-#NAME?,0.0018417671742886541
+state-Georgia,0.0018094942790721621
+state-Unspecified,0.0017960031450707022
+fiModelDescriptor-L,0.0017800154147223832
+fiProductClassDesc-Wheel Loader - 275.0 to 350.0 Horsepower,0.0017684923988308021
+Grouser_Type-Triple,0.0017611834745469386
+Coupler-,0.0017441600486510259
+auctioneerID-6.0,0.0017025005794161351
+auctioneerID-2.0,0.0016962025843978614
+SaleDay-23,0.001695714917653267
+state-Louisiana,0.0016745051427769352
+SaleDay-20,0.0016279268526406753
+SaleDay-31,0.0016170286764634453
+fiModelSeries-II,0.0015792236312684358
+fiModelDescriptor-,0.0015449771321646431
+SaleWkDay-5,0.0015228780267753325
+MfgID-35,0.0014941813435182534
+Ripper-Multi Shank,0.0014705723032485613
+fiProductClassDesc-Wheel Loader - 250.0 to 275.0 Horsepower,0.001458319298779396
+fiBaseModelL1-F,0.0014523006631736919
+auctioneerID-8.0,0.0014471455697757951
+SaleDay-21,0.0014245213602877374
+fiModelDescriptor-5,0.0014109866842201594
+"fiProductClassDesc-Hydraulic Excavator, Track - 8.0 to 11.0 Metric Tons",0.0013966607048163987
+state-Utah,0.0013452662570986251
+auctioneerID-17.0,0.0013002182347507257
+Hydraulics_Flow-Standard,0.0012955589982189761
+state-Connecticut,0.0012781238327742833
+fiProductClassDesc-Skid Steer Loader - 976.0 to 1251.0 Lb Operating Capacity,0.001259215468366775
+Stick-Standard,0.0012466742307866837
+state-Alaska,0.0012389536056243919
+Drive_System-Four Wheel Drive,0.001234903998113859
+Hydraulics-Standard,0.0012305519912787289
+fiBaseModelL1-H,0.0012241933437092413
+fiProductClassDesc-Wheel Loader - 150.0 to 175.0 Horsepower,0.0012195627490373714
+MfgID-77,0.0012053508882073124
+MfgID-424,0.0012037283935801351
+Travel_Controls-Differential Steer,0.0011602302768817872
+fiBaseModelL1-J,0.001155005026177848
+MfgID-405,0.0011444260219516049
+state-Delaware,0.0011369533804541955
+fiModelSeries--15,0.0011293331056413073
+auctioneerID-19.0,0.0011188506660738872
+"fiProductClassDesc-Hydraulic Excavator, Track - 28.0 to 33.0 Metric Tons",0.0011162514802606745
+power_u-Model,0.0010892122302530657
+"fiProductClassDesc-Track Type Tractor, Dozer - 160.0 to 190.0 Horsepower",0.0010692268409725786
+Tire_Size-26.5,0.0010631556329652638
+auctioneerID-14.0,0.0010594000664775069
+SaleDay-14,0.001053193248409281
+fiModelSeries-3,0.00099066250194541428
+SaleDay-1,0.00098996105294307194
+auctioneerID-0.0,0.00098814051675211916
+Blade_Type-Semi U,0.00097671259451063996
+state-Missouri,0.00096002860958373975
+auctioneerID-23.0,0.00092530129552456913
+Tire_Size-17.5,0.00092002693627522109
+Drive_System-No,0.00091948097734934281
+state-Maine,0.00090244229769036134
+fiProductClassDesc-Wheel Loader - 175.0 to 200.0 Horsepower,0.00089950688607931789
+state-Texas,0.0008905351805751742
+fiBaseModelL1-I,0.00088300571897353302
+SaleWkDay-6,0.0008762777775569218
+state-Colorado,0.00086668198279449163
+SaleDay-29,0.00083184199504286445
+"fiProductClassDesc-Track Type Tractor, Dozer - 75.0 to 85.0 Horsepower",0.00079128352107923254
+state-Vermont,0.00078598006503137691
+fiBaseModelL1-W,0.00078534154485122637
+fiBaseModelL1-S,0.0007840449114861304
+SaleWkDay-4,0.00078265150475152572
+auctioneerID-10.0,0.00077598046505289496
+SaleDay-30,0.00076183320818920639
+state-Mississippi,0.00075739511967093745
+Track_Type-Steel,0.00073340356295752878
+MfgID-158,0.00069678624329840488
+fiModelDescriptor-6,0.0006958586267457607
+SaleDay-18,0.00069554710677370416
+"fiProductClassDesc-Track Type Tractor, Dozer - 85.0 to 105.0 Horsepower",0.00067552871986437915
+Transmission-Powershift,0.00067534841674983168
+state-Michigan,0.00066747519947652682
+fiBaseModelL1-R,0.00063623217940541059
+state-New York,0.00062254209801214052
+fiProductClassDesc-Backhoe Loader - 15.0 to 16.0 Ft Standard Digging Depth,0.00061071440216903684
+auctioneerID-5.0,0.000583955423666045
+state-Arkansas,0.00056647469841762188
+fiProductClassDesc-Wheel Loader - 90.0 to 100.0 Horsepower,0.00054401029330609679
+fiModelSeries-LC,0.00053586246243521329
+MfgID-63,0.00052701932826303773
+SaleDay-8,0.00052067572891514901
+Tire_Size-15.5,0.00049219804009008176
+auctioneerID-1.0,0.00049149088023937697
+fiModelSeries--12,0.00048565276717578562
+SaleWkDay-3,0.00047163182019235487
+Hydraulics-3 Valve,0.00046012039556196112
+"fiProductClassDesc-Hydraulic Excavator, Track - 12.0 to 14.0 Metric Tons",0.00044652603396477412
+fiProductClassDesc-Wheel Loader - 350.0 to 500.0 Horsepower,0.00044551058708216032
+auctioneerID-27.0,0.00043161261266142599
+state-South Carolina,0.00042981958940106139
+Travel_Controls-2 Pedal,0.00042767824256212888
+ProductGroup-TTT,0.00042543341049425173
+state-Alabama,0.00041979814051426118
+SaleDay-6,0.00041080251310006817
+auctioneerID-21.0,0.00041062243679303092
+SaleDay-16,0.00040948524644394415
+SaleDay-12,0.00040386459532369191
+auctioneerID-25.0,0.00040158044844847688
+Thumb,0.00040058923494732524
+state-North Carolina,0.00040024485984747887
+fiProductClassDesc-Wheel Loader - 110.0 to 120.0 Horsepower,0.00039286611174962763
+Forks,0.00037207319876454481
+fiModelSeries--1,0.00035976765060556664
+MfgID-609,0.00035486213366274548
+state-Pennsylvania,0.00035441941712800387
+SaleDay-17,0.00034847080333475807
+auctioneerID-7.0,0.00032800769579356182
+fiProductClassDesc-Wheel Loader - 40.0 to 60.0 Horsepower,0.00032775087124394924
+SaleDay-13,0.0003189952559281962
+SaleDay-25,0.00031368354770263334
+Tip_Control-Tip,0.00030571947598715689
+Ride_Control-No,0.00030186416252807357
+MfgID-54,0.00029928133307061296
+Tire_Size-29.5,0.00029128382151874445
+SaleDay-4,0.00028868037193749467
+fiProductClassDesc-Wheel Loader - 200.0 to 225.0 Horsepower,0.00028557377810144218
+Travel_Controls-Lever,0.00028412826401445572
+MfgID-103,0.00028325853773821782
+SaleWkDay-2,0.00028325756278608708
+state-Nevada,0.00027899232758889312
+state-Indiana,0.00026863514901319862
+auctioneerID-12.0,0.00026576391330401154
+MfgID-135,0.00026421050909519256
+"fiProductClassDesc-Track Type Tractor, Dozer - 190.0 to 260.0 Horsepower",0.00026339305091419506
+MfgID-95,0.00025943976762974789
+ProductGroup-WL,0.00024638913394585182
+Pad_Type-Reversible,0.00023620283669280483
+Transmission-,0.00022414296678118835
+Tire_Size-20.5,0.00022351897477288469
+Blade_Type-Angle,0.00021273265308483294
+SaleDay-2,0.00020193433095888573
+fiModelSeries-III,0.00020039988405706486
+Hydraulics-Auxiliary,0.00019247010784743045
+SaleDay-9,0.00019153746448184072
+fiBaseModelL1-P,0.00019124585443973927
+fiModelDescriptor-H,0.00018644907042677551
+"fiProductClassDesc-Track Type Tractor, Dozer - 130.0 to 160.0 Horsepower",0.00018055696255109459
+SaleDay-3,0.00017350108083944053
+auctioneerID-16.0,0.00017200609226758056
+fiBaseModelL1-D,0.00017090921873526627
+"fiProductClassDesc-Hydraulic Excavator, Track - 6.0 to 8.0 Metric Tons",0.00017048065462171942
+Transmission-Standard,0.00015067293820641254
+Steering_Controls-Conventional,0.00015012494826718593
+Hydraulics-2 Valve,0.00014714737648149085
+state-California,0.00014585863881436605
+Blade_Type-PAT,0.00014378433963635516
+state-Arizona,0.00014274944003522916
+auctioneerID-9.0,0.00014243014418438007
+Blade_Type-Straight,0.00013175498051150582
+state-Ohio,0.00012893685149169027
+fiProductClassDesc-Backhoe Loader - 14.0 to 15.0 Ft Standard Digging Depth,0.00012249657805422971
+auctioneerID-99.0,0.00012200172710810913
+fiBaseModelL1-E,0.00011515516935405535
+Hydraulics-,0.00011438149947027937
+Hydraulics-Base + 1 Function,0.0001141759883174399
+fiModelDescriptor-3,0.00011401459010738118
+ProductGroup-BL,0.00011330441509298845
+SaleWkDay-7,0.00010632429410361102
+Tire_Size-23.5,0.00010418029494559057
+fiModelDescriptor-LT,9.8654493920867538e-05
+state-Montana,9.7294151809458986e-05
+fiBaseModelL1-T,9.4216135892013822e-05
+auctioneerID-22.0,9.0828721529641744e-05
+Blade_Type-No,8.9562923538605624e-05
+state-Nebraska,8.327856027385701e-05
+MfgID-1444,7.7966799652604989e-05
+fiModelSeries-1,7.7546500507819671e-05
+power_u-Horsepower,7.5859234224961875e-05
+fiProductClassDesc-Motorgrader - 45.0 to 130.0 Horsepower,7.0503787529374259e-05
+state-Tennessee,7.0292946260237685e-05
+MfgID-6,6.6980681358709036e-05
+fiProductClassDesc-Wheel Loader - 120.0 to 135.0 Horsepower,6.6108834056210868e-05
+auctioneerID-4.0,6.0471580821518713e-05
+MfgID-470,5.7772725833150218e-05
+Track_Type-,4.5863138324883507e-05
+SaleDay-19,4.2338447881694867e-05
+Engine_Horsepower-,4.1241286319726236e-05
+state-New Mexico,4.1019503464650566e-05
+Steering_Controls-,3.9560888118049447e-05
+Grouser_Type-Double,3.7956607825309386e-05
+fiProductClassDesc-Wheel Loader - 60.0 to 80.0 Horsepower,3.4026329976915952e-05
+Track_Type-Rubber,3.3362234074952831e-05
+Pushblock,3.3157071652086677e-05
+SaleDay-10,3.3090000689162564e-05
+auctioneerID-15.0,3.2807464532301466e-05
+"fiProductClassDesc-Hydraulic Excavator, Track - 0.0 to 2.0 Metric Tons",3.2290523886749097e-05
+Blade_Type-,3.0331260615998127e-05
+MfgID-129,2.9997665485399193e-05
+auctioneerID-24.0,2.8154752899928456e-05
+Travel_Controls-,2.6485358245662344e-05
+fiProductClassDesc-Motorgrader - 145.0 to 170.0 Horsepower,2.4814421098493725e-05
+Turbocharged,2.4151880288339543e-05
+MfgID-2552,2.3577151496522814e-05
+fiModelDescriptor-LGP,1.8761240035308347e-05
+"fiProductClassDesc-Hydraulic Excavator, Track - 11.0 to 12.0 Metric Tons",1.7942508110254147e-05
+fiModelSeries--3,1.7420754132773636e-05
+fiModelDescriptor-WLT,1.5282914669699086e-05
+Drive_System-,1.4633191117607241e-05
+Coupler-Hydraulic,1.4538710451153508e-05
+"Tire_Size-15.5""",1.4278507017957884e-05
+fiProductClassDesc-Skid Steer Loader - 0.0 to 701.0 Lb Operating Capacity,1.3911131646530638e-05
+ProductGroup-TEX,1.2886121614857475e-05
+Tip_Control-,1.2502653274828061e-05
+"fiProductClassDesc-Hydraulic Excavator, Track - 5.0 to 6.0 Metric Tons",1.2142021616576223e-05
+Ride_Control-,1.1570846870101841e-05
+fiModelDescriptor-Z,1.1304159129827187e-05
+fiBaseModelL1-,1.1232442730948165e-05
+fiProductClassDesc-Skid Steer Loader - 1251.0 to 1351.0 Lb Operating Capacity,1.117001472621749e-05
+Tip_Control-Sideshift & Tip,1.1042933873291063e-05
+Ripper-Single Shank,1.0793311225399552e-05
+fiBaseModelL1-L,9.8240767760697033e-06
+fiModelSeries--21,9.6600559909497279e-06
+fiProductClassDesc-Backhoe Loader - 0.0 to 14.0 Ft Standard Digging Depth,9.6438585429572733e-06
+power_u-Standard Digging Depth - Ft,9.3248963759431445e-06
+fiProductClassDesc-Motorgrader - 130.0 to 145.0 Horsepower,8.7840713421580258e-06
+state-Kentucky,8.462939023407154e-06
+fiProductClassDesc-Skid Steer Loader - 1601.0 to 1751.0 Lb Operating Capacity,8.3253093726635642e-06
+"fiProductClassDesc-Hydraulic Excavator, Track - 2.0 to 3.0 Metric Tons",8.189892096079446e-06
+state-Kansas,7.9275414837438979e-06
+fiModelSeries--5,7.6700686605009462e-06
+Ride_Control-Yes,7.1770095421479438e-06
+fiProductClassDesc-Skid Steer Loader - 1351.0 to 1601.0 Lb Operating Capacity,6.5829063923459414e-06
+fiModelSeries--17,5.7804549388391816e-06
+MfgID-348,5.5012007038717482e-06
+power_u-Weight - Metric Tons,5.1424809713632797e-06
+MfgID-121,4.9107774233927247e-06
+"fiProductClassDesc-Hydraulic Excavator, Track - 3.0 to 4.0 Metric Tons",4.7973653670021068e-06
+Coupler-Manual,4.7361641402055287e-06
+fiModelDescriptor-7,4.7300989194900109e-06
+Travel_Controls-Pedal,4.7089138669993727e-06
+Transmission-Hydrostatic,4.666782562573e-06
+fiModelDescriptor-LC,4.2052583885553297e-06
+fiProductClassDesc-Motorgrader - 200.0 + Horsepower,4.1902436342495975e-06
+Pattern_Changer,4.0063947480604166e-06
+"fiProductClassDesc-Hydraulic Excavator, Track - 19.0 to 21.0 Metric Tons",3.3782654892945248e-06
+fiProductClassDesc-Backhoe Loader - Unidentified,3.1745199411583855e-06
+Engine_Horsepower-No,2.81021035650277e-06
+fiProductClassDesc-Skid Steer Loader - 1751.0 to 2201.0 Lb Operating Capacity,2.5064521376902166e-06
+fiModelSeries-6,2.5011528097272118e-06
+Blade_Type-U,2.2141445462118854e-06
+Stick-,2.1250452912575413e-06
+fiBaseModelL1-C,2.0590992959299172e-06
+fiModelDescriptor-XL,2.0064053312179496e-06
+Ripper-Yes,1.9841619651513076e-06
+MfgID-160,1.6911418138233933e-06
+Travel_Controls-Finger Tip,1.5602266648296275e-06
+fiBaseModelL1-G,1.3410005545396685e-06
+fiProductClassDesc-Wheel Loader - 80.0 to 90.0 Horsepower,1.1220962534617296e-06
+fiBaseModelL1-B,1.0558365557241618e-06
+"Tire_Size-14""",1.0080182767090186e-06
+fiBaseModelL1-M,9.9753127951307014e-07
+fiProductClassDesc-Skid Steer Loader - 701.0 to 976.0 Lb Operating Capacity,7.714536424642375e-07
+Enclosure_Type-,7.6709533382516969e-07
+"fiProductClassDesc-Hydraulic Excavator, Track - 4.0 to 5.0 Metric Tons",7.5725265091491143e-07
+fiProductClassDesc-Motorgrader - 170.0 to 200.0 Horsepower,4.6270560314215429e-07
+fiModelSeries--5LC,3.8169957220711699e-07
+fiProductClassDesc-Backhoe Loader - 16.0 + Ft Standard Digging Depth,3.3433281666945519e-07
+fiProductClassDesc-Skid Steer Loader - 2201.0 to 2701.0 Lb Operating Capacity,3.3106839345878481e-07
+MfgID-34,3.3006033006833911e-07
+fiBaseModelL1-Z,2.5639137944097081e-07
+state-South Dakota,1.8221672943201694e-07
+fiProductClassDesc-Skid Steer Loader - 2701.0+ Lb Operating Capacity,1.645994984842087e-07
+"Tire_Size-17.5""",1.3281457667289402e-07
+"Tire_Size-23.5""",8.8000921554038493e-08
+fiModelSeries-V,8.1899088249264061e-08
+state-Oregon,7.637277943808017e-08
+fiModelSeries-18,7.452887697354762e-08
+Pad_Type-,6.7908861921056098e-08
+state-North Dakota,6.0760697484747211e-08
+fiModelSeries--11,6.0626014912753599e-08
+fiModelSeries--2N,6.0521289149499984e-08
+fiModelSeries--3LC,5.5853817713431912e-08
+fiModelSeries--3MC,5.5098049743316007e-08
+fiModelSeries-TC,4.4953089753256154e-08
+"fiProductClassDesc-Hydraulic Excavator, Track - 4.0 to 6.0 Metric Tons",3.8097988727897145e-08
+fiProductClassDesc-Wheel Loader - 225.0 to 250.0 Horsepower,2.1880028814792429e-08
+Differential_Type-Limited Slip,2.1706158431245222e-08
+fiModelSeries--18,2.064251644353932e-08
+MfgID-167,1.6946295938991039e-08
+MfgID-166,1.6838339206274844e-08
+fiModelSeries-5,1.162363355877123e-08
+auctioneerID-13.0,1.0397317950672498e-08
+Coupler_System,6.236377732052745e-09
+fiBaseModelL1-U,2.2633772361437342e-09
+Hydraulics_Flow-High Flow,1.662699957036687e-09
+fiModelSeries--1L,0.0
+fiModelSeries--20,0.0
+fiModelSeries--3H,0.0
+fiModelSeries--3L,0.0
+fiModelSeries--3LK,0.0
+fiModelSeries--3M,0.0
+fiModelSeries--5E,0.0
+fiModelSeries--5L,0.0
+fiModelSeries--6E,0.0
+fiModelSeries--7B,0.0
+fiModelSeries--7E,0.0
+fiModelSeries-15,0.0
+fiModelSeries-16,0.0
+fiModelSeries-2,0.0
+fiModelSeries-2T,0.0
+fiModelSeries-5N,0.0
+fiModelSeries-7.00E+00,0.0
+fiModelSeries-8,0.0
+fiModelSeries-GALEO,0.0
+fiModelSeries-IV,0.0
+fiModelSeries-XT,0.0
+fiProductClassDesc-Skid Steer Loader - Unidentified,0.0
+fiProductClassDesc-Wheel Loader - 0.0 to 40.0 Horsepower,0.0
+fiProductClassDesc-Wheel Loader - 500.0 to 1000.0 Horsepower,0.0
+fiProductClassDesc-Wheel Loader - Unidentified,0.0
+Steering_Controls-Command Control,0.0
+Engine_Horsepower-Variable,0.0
+fiBaseModelL1-V,0.0
+Blade_Extension,0.0
+Drive_System-All Wheel Drive,0.0
+Hydraulics-Base + 2 Function,0.0
+Hydraulics-Base + 3 Function,0.0
+Hydraulics-Base + 6 Function,0.0
+MfgID-106,0.0
+MfgID-1070,0.0
+MfgID-119,0.0
+MfgID-145,0.0
+MfgID-163,0.0
+MfgID-169,0.0
+MfgID-172,0.0
+MfgID-23,0.0
+MfgID-335,0.0
+MfgID-448,0.0
+MfgID-57,0.0
+MfgID-61,0.0
+MfgID-629,0.0
+MfgID-750,0.0
+MfgID-758,0.0
+MfgID-776,0.0
+MfgID-8,0.0
+MfgID-800,0.0
+MfgID-847,0.0
+MfgID-89,0.0
+state-Hawaii,0.0
+state-Massachusetts,0.0
+state-Virginia,0.0
+state-Wyoming,0.0
+fiModelDescriptor-1,0.0
+fiModelDescriptor-2,0.0
+fiModelDescriptor-3NO,0.0
+fiModelDescriptor-A,0.0
+fiModelDescriptor-C,0.0
+fiModelDescriptor-CR,0.0
+fiModelDescriptor-G,0.0
+fiModelDescriptor-HF,0.0
+fiModelDescriptor-II,0.0
+fiModelDescriptor-KA,0.0
+fiModelDescriptor-LCR,0.0
+fiModelDescriptor-LCRTS,0.0
+fiModelDescriptor-LE,0.0
+fiModelDescriptor-LK,0.0
+fiModelDescriptor-LR,0.0
+fiModelDescriptor-LRC,0.0
+fiModelDescriptor-LU,0.0
+fiModelDescriptor-LX,0.0
+fiModelDescriptor-LongReach,0.0
+fiModelDescriptor-MC,0.0
+fiModelDescriptor-NSUC,0.0
+fiModelDescriptor-RTS,0.0
+fiModelDescriptor-SA,0.0
+fiModelDescriptor-SITEMASTER,0.0
+fiModelDescriptor-SR,0.0
+fiModelDescriptor-SRLC,0.0
+fiModelDescriptor-SSR,0.0
+fiModelDescriptor-TC,0.0
+fiModelDescriptor-TM,0.0
+fiModelDescriptor-U,0.0
+fiModelDescriptor-WT,0.0
+fiModelDescriptor-XLT,0.0
+fiModelDescriptor-XT,0.0
+fiModelDescriptor-ZTS,0.0
+fiModelDescriptor-ZX,0.0
+Differential_Type-,0.0
+Differential_Type-Standard,0.0
+Grouser_Type-,0.0
+Enclosure_Type-High Profile,0.0
+Enclosure_Type-Low Profile,0.0
+Blade_Type-VPAT,0.0
+Transmission-Autoshift,0.0
+Transmission-Direct Drive,0.0
+Pad_Type-Grouser,0.0
+Pad_Type-Street,0.0
+Backhoe_Mounting,0.0
+Grouser_Tracks,0.0
+"Tire_Size-13""",0.0
+"Tire_Size-20.5""",0.0
+"Tire_Size-7.0""",0.0
+auctioneerID-26.0,0.0
+Enclosure-,0.0

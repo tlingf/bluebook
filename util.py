@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import csv
 
-testing = 0
+testing = 1
 def get_paths():
     """
     Redefine data_path and submissions_path here to run the benchmarks on your machine
@@ -21,7 +21,7 @@ def get_train_df(data_path = None):
     if testing == 1:
         train = pd.read_csv(os.path.join(data_path, "Train.csv"),
         converters={"saledate": parse}   , na_values =["None or Unspecified"]    ,
-          skiprows = [i for i in xrange(401127) if i % 10 != 0] )
+          skiprows = [i for i in xrange(401127) if i % 100 != 0] )
     else:
         train = pd.read_csv(os.path.join(data_path, "Train.csv"),
         converters={"saledate": parse} , na_values =["None or Unspecified"]  ) #    ,
