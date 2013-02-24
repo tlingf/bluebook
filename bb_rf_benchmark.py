@@ -100,7 +100,7 @@ def map_columns(col, d, data, data_out):
     return data_out
 
 # These already added to the "out"
-col_list = ["ProductSize", "UsageBand", "fiSecondaryDesc"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
+col_list = ["ProductSize", "UsageBand"] # , "fiSecondaryDesc"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
 # referenced in clean_columns and final col parsing
 # fiSecondaryDesc is done in "newest"
 
@@ -266,7 +266,6 @@ def clean_columns(data, data_out):
             error_count =0
             
             mfgids = []
-            mfgids2 = []
             power_max_l = []
             power_min_l = []
             power_unit_l = []
@@ -283,7 +282,6 @@ def clean_columns(data, data_out):
                     #elif power_min == "":power_min = -1
                 except KeyError: mfgid, power_u, power_min, power_max = 0, "", -1, -1
                 mfgids.append(mfgid_temp)
-        
                 power_max_l.append(float(power_max))
                 power_min_l.append(float(power_min))
                 power_unit_l.append(power_u)
@@ -301,9 +299,9 @@ def clean_columns(data, data_out):
             #for productsize in [str(x) for x in range(7)]:
                 for productsize in ["","Mini","Compact","Small","","Medium","Large / Medium","Large"]:
                     power_min_means[product + productsize] = np.mean( data[ (data["ProductGroup"] == product) &
-                    (data["ProductSize"] == productsize) & (data["power_min"] >= 0)]["power_min"])
+                        (data["ProductSize"] == productsize) & (data["power_min"] >= 0)]["power_min"])
                     power_max_means[product +productsize] = np.mean( data[ (data["ProductGroup"] == product) &
-                    (data["ProductSize"] == productsize) & (data["power_max"] >= 0)]["power_max"])
+                        (data["ProductSize"] == productsize) & (data["power_max"] >= 0)]["power_max"])
                 
             print "done calc power means"
             for x in xrange(num_rows):
@@ -374,12 +372,12 @@ def data_to_fea():
     if testing == 1:
         # This is the to test predict
         test = train[(train["saledate"] >= datetime.datetime(2011,1,1)) & (train["saledate"] < datetime.datetime(2011,5,1))]
+        test = test.reset_index(drop = True)
         test_Y = test["SalePrice"]
         train = train[(train["saledate"] < datetime.datetime(2011,1,1))]
-    
+        train = train.reset_index(drop = True) # drops the original index
+
     print 'test shape',  test.shape
-    train = train.reset_index(drop = True) # drops the original index
-    test = test.reset_index(drop = True)
     del test["SalePrice"]
     
     train_fea = get_date_dataframe(train["saledate"])
@@ -592,40 +590,47 @@ if use_grid_search == 1:
     rf = GradientBoostingRegressor(params)
     rf.fit(train_fea, train_Y)
 
-elif testing == 1:
-    #print "SK Learn Running Forest"
-    #if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
-    #else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
-    for subs in [ "one run"]:
-        print subs
+
+print "SK Learn Running Forest"
+if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
+else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
+rf.fit(train_fea, train_Y)
+predictions_rf = rf.predict(test_fea)
+
+if testing == 1:
+    #for subs in [ "one run"]:
+    if 1:
+        #print subs
         print "Learn Gradient Boosting" # Slower
-        rf = GradientBoostingRegressor(max_depth=8, subsample = .80)# 75 OPTIMAL
-        # subsample = .67 #n_estimators = 100 by default # Cannot parallelize
+        gbm = GradientBoostingRegressor(max_depth=8, subsample = .75)# 75 OPTIMAL
+        #n_estimators = 100 by default # Cannot parallelize
         # if testing, this is part of training set.
-        rf.fit(train_fea, train_Y)
+        gbm.fit(train_fea, train_Y)
         print "Fitting"
         # For 0.13 version, make search myself
         if testing == 1:    
-            predictions = rf.predict(test_fea)
-            print "Oob RMSE:",
+            predictions = gbm.predict(test_fea)
+            print "GBM Oob RMSE:",
             rmse =  np.sqrt(mean_squared_error(test_Y, predictions)) 
             print rmse
-            logger.write("RMSE:" + str(rmse)+ "\n")
+            logger.write("GBM Oob RMSE:" + str(rmse)+ "\n")
 else:
-    #print "SK Learn Running Forest"
-    #if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
-    #else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
     print "Learn Gradient Boosting" # Slower
-    rf = GradientBoostingRegressor(max_depth=8, subsample = .80)  
-    # subsample = .67 #n_estimators = 100 by default # Cannot parallelize
+    gbm = GradientBoostingRegressor(max_depth=8, subsample = .75)  
+    #n_estimators = 100 by default # Cannot parallelize
     # if testing, this is part of training set.
-    rf.fit(train_fea, train_Y)
+    gbm.fit(train_fea, train_Y)
     print "Fitting"
-    print "Train Set RMSE:",np.sqrt(mean_squared_error(train_Y, train_fea))
+    print "Train Set RMSE:",np.sqrt(mean_squared_error(train_Y, train_predict))
+    predictions = gbm.predict(test_fea)
+#if testing == 0: util.write_submission("submit_rf" + comment + ".csv", np.exp(predictions))
 
-if testing == 0: util.write_submission("submit_rf" + comment + ".csv", np.exp(predictions))
+if testing == 1:
+    csv_w_both = csv.writer(open('predictions.csv','wb'))
+    for x in xrange(len(predictions)):
+        csv_w_both.writerow([predictions_rf[x],predictions[x], test_Y[x]])
 
-imp = sorted(zip(train_fea.columns, rf.feature_importances_), key=lambda tup: tup[1], reverse=True)
+imp = sorted(zip(train_fea.columns, gbm.feature_importances_), key=lambda tup: tup[1], reverse=True)
 csv_w = csv.writer(open('out/rf_features' + comment + '.csv','wb'))
 for fea in imp:
     csv_w.writerow([fea[0],fea[1]])
