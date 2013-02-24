@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 #from PyWiseRF import WiseRF
-from sklearn import preprocessing
+from sklearn import preprocessing, grid_search
 import util
 #import gc
 import datetime
@@ -61,8 +61,6 @@ def map_external_data(data):
     tcons_min = min(ext_data["TTLCONS"])
     tsales_median = np.median(ext_data["HTRUCKSSA"]) # try mean
     cpi_min = min(ext_data["TCPI"])
-    #print ext_data["CPI"]
-    #print "sample cpi", ext_data["CPI"]["2006-08-01"]
     
     ext_data["TTLCONS"] = ext_data["TTLCONS"].fillna(tcons_min)
     ext_data["HTRUCKSSA"] = ext_data["HTRUCKSSA"].fillna(tsales_median) # is not much smaller in earlier years
@@ -102,8 +100,9 @@ def map_columns(col, d, data, data_out):
     return data_out
 
 # These already added to the "out"
-col_list = ["ProductSize", "UsageBand"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
+col_list = ["ProductSize", "UsageBand", "fiSecondaryDesc"] #,'fiProductClassDesc'] # ,"UsageBand",'fiProductClassDesc'] # "ProductGroup"
 # referenced in clean_columns and final col parsing
+# fiSecondaryDesc is done in "newest"
 
 def clean_columns(data, data_out):
     appendix = util.get_appendix()
@@ -125,7 +124,6 @@ def clean_columns(data, data_out):
         
         #Age of machine
         if col == "YearMade":
-            #print "calculating years age"
             new_arr =[]
             year_new_arr = []
             for i in xrange(num_rows):
@@ -164,7 +162,6 @@ def clean_columns(data, data_out):
 	#elif col == "Tire_Size":
 	#	data[col]=data[col].fillna(value =0)
 	#	new_arr = []
-	#	print data[col]
 	#	for x in data[col]:
 	#	    if x != 0 and x == "None" and not pd.isnull(x):
 	#		repl = string.replace(string.replace(str(x), "\"",""), "'","")
@@ -215,7 +212,6 @@ def clean_columns(data, data_out):
 	    elif col == "Undercarriage_Pad_Width":
 		data[col]=data[col].fillna(value =0)
 		#print data[col][0:10]
-		#print data[col]
 		s = np.unique(x for x in data[col])
 		#print "unique values for undercarriage pad width", s
 		new_arr = []
@@ -331,12 +327,13 @@ def newest_model(data):
     # But is it newest at the time of sale??
     col = "fiBaseModel"
     model_max = {}
-    
-    s = np.unique(x for x in np.append(data['fiSecondaryDesc'].values))
+    num_rows = len(data) 
+    data['fiSecondaryDesc']=data[col].fillna(value ="")
+    s = np.unique(x for x in data['fiSecondaryDesc'].values)
     
     mapping = pd.Series([x[0] for x in enumerate(s)], index = s) # Original code
-    data['fiSecondaryDescE'] = data['fiSecondaryDesc'].map(mapping)
-
+    data['fiSecondaryDesc'] = data['fiSecondaryDesc'].map(mapping)
+    #print "fiSecondaryDesc", s
     newest = []
     print "Finding max model"
     # New approach - find max for that date and model
@@ -344,11 +341,16 @@ def newest_model(data):
 	saledate = data['saledate'][x]
         model = data['fiBaseModel'][x]
 	# Maybe add state if it's released by state, unless it's online
-	model_max = max(data[(data['fiBaseModel'] == model) / 
-		&& (data['saledate'] < saledate)]['fiSecondaryDescE'])
-        if model_max  == data['fiSecondaryDescE']: newest.append(1)
+	# Newest in the last 2 years of sales
+	try:
+	    model_max = max(data[(data['fiBaseModel'] == model) & \
+		(data['saledate'] < saledate) & \
+		(data['saledate'] >= (saledate + relativedelta(years = -2)))]['fiSecondaryDesc'])
+        except ValueError: model_max = -1
+	if model_max  == data['fiSecondaryDesc'][x]: newest.append(1)
 	else: newest.append(0)
     data['newest'] = newest
+    #print newest
     return data
  
 def binarize_cols(col, train, test, train_fea, test_fea):
@@ -401,11 +403,16 @@ def data_to_fea():
     for col in columns:
         # these deleted already["ProductGroupDesc", "fiProductClassDesc"]
         if col not in col_list : # REAL ONE
-        #if col == "fiBaseModelN":
+        #if col == "fiBaseModel":
         # col_list = ["ProductSize","UsageBand",'fiProductClassDesc'] # "ProductGroup"
         #if col == "Backhoe_Mounting": # Testing - error in the fillna "convert string to float" but why?
             #print "starting", col
-            
+            # find newest. populates fiSecondaryDesc
+	    # Need to fix so that train_fea returns SaleYear
+	    #if col == 'fiBaseModel':
+	    #	train_fea = newest_model(train)
+	    #	test_fea = newest_model(test)
+	    
 	    # Binarize these, even if numerical
             if col  in [  'ProductGroup', 'state',
                         'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleDay', "SaleWkDay", "fiProductClassDesc"] :
@@ -429,7 +436,7 @@ def data_to_fea():
                 test[col] = test[col].fillna(value = "")
                 #
                 s = np.unique(x for x in np.append(train[col].values,test[col].values))
-                print  col, ":", len(s), ":", s
+                print  col, ":", len(s), ":", s[:10]
                 
                 # Binarize these ones:
                 if len(s) >2 and len(s) < 100 and col not in "Thumb": # in [ 'fiBaseModel']
@@ -543,37 +550,51 @@ def data_to_fea():
 if testing == 0:train_fea, test_fea , train_Y  = data_to_fea()
 else: train_fea, test_fea , train_Y, test_Y = data_to_fea()
 print "Length of features:", train_fea.shape
-#print "Length of "
+
+# Predict based on log
 train_Y = np.log(train_Y)
 #train_validate_Y = np.log(train_validate["SalePrice"])
 
 train_len = train_fea.shape[0]
-print "new train length", train_len
-train_len = len(train_Y)
-print "new train length", train_len
 
 if use_wiserf == 1:
     rf = WiseRF(n_estimators=50) # Doesn't work right now
 elif run_ml == 1:
     print "SK Learn Running Forest"
-    if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
-    else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
-    #print "Learn Gradient Boosting" # Slower
-    #rf = GradientBoostingRegressor(subsample = .67) #n_estimators = 100 by default # Cannot parallelize
-    
-    rf.fit(train_fea, train_Y)
+    #if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
+    #else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
+    print "Learn Gradient Boosting" # Slower
+    #rf = GradientBoostingRegressor(max_depth=8, subsample = .80)# subsample = .67 #n_estimators = 100 by default # Cannot parallelize
+    rf = GradientBoostingRegressor()
+    parameters = {'loss':('ls','huber', 'quantile'), 'learning_rate': (0.1,0.2,0.3), 'max_depth': [7,8,9],'min_samples_split':[2,3,4,5],'min_samples_leaf':[1,2,3,4], 'subsample':(.7,.8,.9)}
+    parameters = {'max_depth':[7,8,9]}
+    clf = grid_search.GridSearchCV(rf, parameters, n_jobs = -1, score_func =mean_squared_error) 
+    # 14 version
+    #clf = grid_search.GridSearchCV(rf, parameters , scoring = 'mse')
+    clf.fit(train_fea, train_Y)
+    #rf.fit(train_fea, train_Y)
     
     print "Fitting"
     
     # if testing, this is part of training set.
-    predictions = rf.predict(test_fea)
-    predictions = np.exp(predictions)
+    #predictions = rf.predict(test_fea)
+    #predictions = np.exp(predictions)
+
+
+print clf.grid_scores_
+print "best score", clf.best_score_
+print "best params", clf.best_params_
+params = clf.get_params()
+logger = open("out/rf_log.txt","a")
+#logger.write("GBM, max depth = 5")
+logger.write(str(clf.grid_scores_))
+logger.write("\n")
+
+rf = GradientBoostingRegressor(params)
+rf.fit(train_fea, train_Y)
 
 if testing == 0: util.write_submission("submit_rf" + comment + ".csv", predictions)
-
 imp = sorted(zip(train_fea.columns, rf.feature_importances_), key=lambda tup: tup[1], reverse=True)
-logger = open("out/rf_log.txt","a")
-
 csv_w = csv.writer(open('out/rf_features' + comment + '.csv','wb'))
 for fea in imp:
     csv_w.writerow([fea[0],fea[1]])
