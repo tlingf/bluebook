@@ -553,47 +553,79 @@ print "Length of features:", train_fea.shape
 
 # Predict based on log
 train_Y = np.log(train_Y)
-#train_validate_Y = np.log(train_validate["SalePrice"])
+if testing == 1: test_Y = np.log(test_Y)
 
 train_len = train_fea.shape[0]
 
-if use_wiserf == 1:
-    rf = WiseRF(n_estimators=50) # Doesn't work right now
-elif run_ml == 1:
-    print "SK Learn Running Forest"
-    #if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
-    #else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
-    print "Learn Gradient Boosting" # Slower
-    #rf = GradientBoostingRegressor(max_depth=8, subsample = .80)# subsample = .67 #n_estimators = 100 by default # Cannot parallelize
+def custom_score(self, X, y_true):
+      scores = [mean_squared_error(y_true, y_pred) for y_pred in self.staged_predict(X)]
+      best_iter = np.argmin(scores)
+      best_score = scores[best_iter]
+
+      # set model to best iteration
+      self.n_estimator = best_iter + 1
+      self.estimators_ = self.estimators_[:self.n_estimators]
+
+      return best_score
+
+use_grid_search = 0
+logger = open("out/rf_log.txt","a")
+logger.write("\n" + comment+ "\n")
+
+if use_grid_search == 1:
     rf = GradientBoostingRegressor()
-    parameters = {'loss':('ls','huber', 'quantile'), 'learning_rate': (0.1,0.2,0.3), 'max_depth': [7,8,9],'min_samples_split':[2,3,4,5],'min_samples_leaf':[1,2,3,4], 'subsample':(.7,.8,.9)}
+    GradientBoostingRegressor.score = custom_score
+    parameters = {'loss':('ls','huber', 'quantile'), 'learning_rate': (0.1,0.2),'min_samples_split':[2,3,4],'min_samples_leaf':[1,2], 'subsample':(.7,.8,.9)}
     parameters = {'max_depth':[7,8,9]}
-    clf = grid_search.GridSearchCV(rf, parameters, n_jobs = -1, score_func =mean_squared_error) 
+    #parameters = {'loss':('ls', 'huber', 'quantile')}
+    clf = grid_search.GridSearchCV(rf, parameters, n_jobs = -1) 
     # 14 version
     #clf = grid_search.GridSearchCV(rf, parameters , scoring = 'mse')
     clf.fit(train_fea, train_Y)
-    #rf.fit(train_fea, train_Y)
-    
-    print "Fitting"
-    
-    # if testing, this is part of training set.
-    #predictions = rf.predict(test_fea)
-    #predictions = np.exp(predictions)
 
-
-print clf.grid_scores_
-print "best score", clf.best_score_
-print "best params", clf.best_params_
-params = clf.get_params()
-logger = open("out/rf_log.txt","a")
+    print clf.grid_scores_
+    print "best score", clf.best_score_
+    print "best params", clf.best_params_
+    params = clf.get_params()
 #logger.write("GBM, max depth = 5")
-logger.write(str(clf.grid_scores_))
-logger.write("\n")
+    logger.write(str(clf.grid_scores_))
+    logger.write("\n")
 
-rf = GradientBoostingRegressor(params)
-rf.fit(train_fea, train_Y)
+    rf = GradientBoostingRegressor(params)
+    rf.fit(train_fea, train_Y)
 
-if testing == 0: util.write_submission("submit_rf" + comment + ".csv", predictions)
+elif testing == 1:
+    #print "SK Learn Running Forest"
+    #if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
+    #else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
+    for subs in [.7,.8,.9]:
+        print "Learn Gradient Boosting" # Slower
+        rf = GradientBoostingRegressor(max_depth=8, subsample = subs)
+        # subsample = .67 #n_estimators = 100 by default # Cannot parallelize
+        # if testing, this is part of training set.
+        rf.fit(train_fea, train_Y)
+        print "Fitting"
+        # For 0.13 version, make search myself
+        if testing == 1:    
+            predictions = rf.predict(test_fea)
+            print "Oob RMSE:",
+            rmse =  np.sqrt(mean_squared_error(predictions, test_Y)) 
+            print rmse
+            logger.write("RMSE:" + str(rmse)+ "\n")
+else:
+    #print "SK Learn Running Forest"
+    #if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
+    #else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
+    print "Learn Gradient Boosting" # Slower
+    rf = GradientBoostingRegressor(max_depth=8, subsample = .80)
+    # subsample = .67 #n_estimators = 100 by default # Cannot parallelize
+    # if testing, this is part of training set.
+    rf.fit(train_fea, train_Y)
+    print "Fitting"
+    print "Train Set RMSE:",np.sqrt(mean_squared_error(train_Y, train_fea))
+
+if testing == 0: util.write_submission("submit_rf" + comment + ".csv", np.exp(predictions))
+
 imp = sorted(zip(train_fea.columns, rf.feature_importances_), key=lambda tup: tup[1], reverse=True)
 csv_w = csv.writer(open('out/rf_features' + comment + '.csv','wb'))
 for fea in imp:
@@ -609,7 +641,6 @@ for fea in imp:
             
 #print "oob score:", rf.oob_score_
 #print "score", rf.score(train_fea, train_Y)
-logger.write("\n" + comment+ "\n")
 #logger.write("oob score:" +str( rf.oob_score_)+ "\n")
 
 def is_numeric(obj):
@@ -620,42 +651,24 @@ def is_numeric(obj):
 print "Calculating RMSE"
 
 train_predict = rf.predict(train_fea)
-train_predict = np.exp(train_predict)
+#train_predict = np.exp(train_predict)
     
 print "Length of train_predict", len(train_predict)
-print "Length of train_validation", len(train_predict)
 train_len = len(train_predict)
-train_Y = np.exp(train_Y)
-error_sum = 0
-i =0
-for i in xrange(train_len):
-    error_unit = (np.log(train_Y[i]) - np.log(train_predict[i] ))**2
-    error_sum += error_unit
-error_sum = error_sum/float(train_len)    
-rmse = np.sqrt(error_sum)
+
+rmse = np.sqrt(mean_squared_error(train_Y, train_predict))
 print "Train Set RMSE:", rmse
 logger.write("Train Set RMSE:" + str(rmse)+ "\n")
 
-train_fea["prediction"] = train_predict
-train_fea["actual"] = train_Y
-#print "Writing to csv"
-#train_fea.to_csv('out/rf_train_Y.csv')
-print "Starting Oob RMSE"
-if testing == 1:
-    train_predict = predictions
-    train_Y = [ x for x in test_Y]
-    train_len = len(train_predict)
-    error_sum = 0
-    for i in xrange(train_len):
-	error_unit = (np.log(train_Y[i]) - np.log(train_predict[i] ))**2
-	error_sum += error_unit
-    error_sum = error_sum/float(train_len)    
-    rmse = np.sqrt(error_sum)
-    print "Oob Set RMSE:", rmse
-    logger.write("RMSE:" + str(rmse)+ "\n")
-#csv_p = csv.writer(open('out/rf_train_Y.csv','wb'))
-#for i in xrange(len(train_predict)):
-    #csv_p.writerow([train_predict[i], train_Y[i]])
+if testing == 0:
+    train_fea["prediction"] = train_predict
+    train_fea["actual"] = train_Y
+    #print "Writing to csv"
+    #train_fea.to_csv('out/rf_train_Y.csv')
+else:
+    test_fea["prediction"] = predictions
+    test_fea["acutal"] = test_Y
+    test_fea.to_csv('out/rf_test_Y.csv')
 
 print datetime.datetime.today()
 t2 = time()
