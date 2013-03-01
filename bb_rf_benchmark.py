@@ -18,7 +18,7 @@ import numpy.ma as ma
 print datetime.datetime.today()
 import csv
 import sys
-
+import cPickle
 comment = sys.argv[1]
 # Latest
 # fix tire size, when run on all data had issues
@@ -30,7 +30,7 @@ comment = sys.argv[1]
 # figure out avg values of na values for all col's
 # why is stick length mean so high
 
-testing = 1
+testing = 0
 run_ml = 1
 use_wiserf =  0 # Doesn't work
 #run_ml = 1
@@ -211,9 +211,7 @@ def clean_columns(data, data_out):
             # barely better.. keep as is?
             elif col == "Undercarriage_Pad_Width":
                 data[col]=data[col].fillna(value =0)
-                #print data[col][0:10]
                 s = np.unique(x for x in data[col])
-                #print "unique values for undercarriage pad width", s
                 new_arr = []
                 for x in data[col]:
                     repl = string.replace(str(x), " inch","")
@@ -291,7 +289,6 @@ def clean_columns(data, data_out):
             data['power_min'] =  power_min_l
             data['power_u'] =  power_unit_l
             
-            print "calculating pow2er min,max means"
             power_min_means = {}
             power_max_means = {}
             data["ProductSize"]=data["ProductSize"].fillna(value ="")
@@ -303,7 +300,6 @@ def clean_columns(data, data_out):
                     power_max_means[product +productsize] = np.mean( data[ (data["ProductGroup"] == product) &
                         (data["ProductSize"] == productsize) & (data["power_max"] >= 0)]["power_max"])
                 
-            print "done calc power means"
             for x in xrange(num_rows):
                 if data["power_min"][x] == -1:
                     product = data["ProductGroup"][x]
@@ -311,7 +307,6 @@ def clean_columns(data, data_out):
                     productsize = str(data["ProductSize"][x])
                     data["power_min"][x] = power_min_means[product + productsize]
                     data["power_max"][x] = power_max_means[product + productsize]
-            print "power_min: done populating empty"
                 #data[["power_min", "power_max"]].to_csv('power_min_out', index=True)
         
     data = data.drop(col_list,axis =1)
@@ -376,15 +371,16 @@ def data_to_fea():
         test_Y = test["SalePrice"]
         train = train[(train["saledate"] < datetime.datetime(2011,1,1))]
         train = train.reset_index(drop = True) # drops the original index
+        del test["SalePrice"]
 
     print 'test shape',  test.shape
-    del test["SalePrice"]
     
     train_fea = get_date_dataframe(train["saledate"])
     test_fea = get_date_dataframe(test["saledate"])
     
     train_fea = map_external_data( train_fea)
     test_fea = map_external_data(test_fea)
+
 
     print "Cleaning Columns"
     train, train_fea = clean_columns(train, train_fea)
@@ -410,12 +406,10 @@ def data_to_fea():
         #   test_fea = newest_model(test)
         
         # Binarize these, even if numerical
-        if col  in [  'ProductGroup', 'state',
+        if col  in [  'ProductGroup', 'state','fiModelSeries','fiModelDescriptor',
                         'auctioneerID', 'power_u', 'MfgID', 'Enclosure', 'SaleDay', "SaleWkDay", "fiProductClassDesc"] :
             print "binarize", col
         
-            s = np.unique(x for x in np.append(train[col].values,test[col].values))
-            print col, ":", len(s), ":",s[:10]
             if col in ['auctioneerID', 'MfgID']:
                 train[col]=train[col].fillna(value =0)
                 test[col] = test[col].fillna(value = 0)
@@ -423,6 +417,8 @@ def data_to_fea():
                 train[col]=train[col].fillna(value ="")
                 test[col] = test[col].fillna(value = "")
 
+            s = np.unique(x for x in np.append(train[col].values,test[col].values))
+            #print col, ":", len(s), ":",s[:10]
                 # would binarize BaseModel but too much memory  
             train_fea, test_fea = binarize_cols(col, train, test, train_fea, test_fea)
                 
@@ -432,20 +428,20 @@ def data_to_fea():
             test[col] = test[col].fillna(value = "")
             #
             s = np.unique(x for x in np.append(train[col].values,test[col].values))
-            print  col, ":", len(s), ":", s[:10]
+            #print  col, ":", len(s), ":", s[:10]
             
             # Binarize these ones:
             if len(s) >2 and len(s) < 100 and col not in "Thumb": # in [ 'fiBaseModel']
             # try on len(s) > 3
             # don't binarize datasource (6 values), lower performance
-                print "binarize", col
+                #print "binarize", col
                 # would binarize BaseModel but too much memory
                 train_fea, test_fea = binarize_cols(col, train, test, train_fea, test_fea)
             
             # Just enumerate these
             else:
             #if 1:
-                print "enumerate",col
+                #print "enumerate",col
                 #Don't need below line for full data set usually
                 if test[col].dtype != np.dtype(object):
                     test[col] = test[col].astype(object) # in case test had diff type
@@ -507,8 +503,7 @@ def data_to_fea():
             else:
                 train[col] = train[col].fillna(value =train_m)
                 test[col] = test[col].fillna(value=test_m)
-            print col, train_m
-            
+            #print col, train_m
             
             # "mean is nan" 
             if np.isnan(train_m): train[col] = train[col].fillna(value =0)
@@ -538,14 +533,15 @@ def data_to_fea():
 
     del train_fea["SaleYear"]
     del test_fea["SaleYear"]
-    if testing == 1:
-        return train_fea, test_fea, [x for x in train["SalePrice"]], test_Y
-    else:
+    if testing == 0:
         return train_fea, test_fea, [x for x in train["SalePrice"]]
+    else:
+        return train_fea, test_fea, [x for x in train["SalePrice"]], test_Y
 
-if testing == 0:train_fea, test_fea , train_Y  = data_to_fea()
+if testing == 0: train_fea, test_fea , train_Y  = data_to_fea()
 else: train_fea, test_fea , train_Y, test_Y = data_to_fea()
-print "Length of features:", train_fea.shape
+
+print "Shape of features:", train_fea.shape
 
 # Predict based on log
 train_Y = np.log(train_Y)
@@ -591,58 +587,77 @@ if use_grid_search == 1:
     rf.fit(train_fea, train_Y)
 
 
-print "SK Learn Running Forest"
-if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
-else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
-rf.fit(train_fea, train_Y)
-predictions_rf = rf.predict(test_fea)
+#print "SK Learn Running Forest"
+#if testing == 1: rf = RandomForestRegressor(n_estimators=50, n_jobs=4, compute_importances = True)
+#else: rf = RandomForestRegressor(n_estimators=100, n_jobs=4, compute_importances = True)
+#rf.fit(train_fea, train_Y)
+#predictions_rf = rf.predict(test_fea)
 
 if testing == 1:
-    #for subs in [ "one run"]:
-    if 1:
-        #print subs
+    for y in [.20]:
+      for x in [10]:
+        tt1 =time()
+        print "x:",x, " y:", y
         print "Learn Gradient Boosting" # Slower
-        gbm = GradientBoostingRegressor(max_depth=8, subsample = .75)# 75 OPTIMAL
+        gbm = GradientBoostingRegressor(max_depth=x, subsample = .80,
+             min_samples_split = 12, min_samples_leaf = 5, learning_rate = y )# 75 OPTIMAL
         #n_estimators = 100 by default # Cannot parallelize
         # if testing, this is part of training set.
         gbm.fit(train_fea, train_Y)
         print "Fitting"
         # For 0.13 version, make search myself
-        if testing == 1:    
-            predictions = gbm.predict(test_fea)
-            print "GBM Oob RMSE:",
-            rmse =  np.sqrt(mean_squared_error(test_Y, predictions)) 
-            print rmse
-            logger.write("GBM Oob RMSE:" + str(rmse)+ "\n")
+        predictions = gbm.predict(test_fea)
+
+        print "GBM Oob RMSE:",
+        rmse =  np.sqrt(mean_squared_error(test_Y, predictions)) 
+        print rmse
+        logger.write("GBM Oob RMSE:" + str(rmse)+ "\n")
+        
+        train_predict = gbm.predict(train_fea)
+        rmse = np.sqrt(mean_squared_error(train_Y, train_predict))
+        print "Train Set RMSE:", rmse
+        logger.write("Train Set RMSE:" + str(rmse)+ "\n")
+        
+        cPickle.dump(gbm,open( 'gbm_obj.txt','w'))
+
+        tt2 = time()
+        print round(tt2-tt1,0)
+        print datetime.datetime.today()
 else:
     print "Learn Gradient Boosting" # Slower
-    gbm = GradientBoostingRegressor(max_depth=8, subsample = .75)  
+    gbm = GradientBoostingRegressor(max_depth=10, subsample = .80, min_samples_split = 12, min_samples_leaf = 5, n_estimators = 200)  
     #n_estimators = 100 by default # Cannot parallelize
     # if testing, this is part of training set.
     gbm.fit(train_fea, train_Y)
     print "Fitting"
-    print "Train Set RMSE:",np.sqrt(mean_squared_error(train_Y, train_predict))
     predictions = gbm.predict(test_fea)
-#if testing == 0: util.write_submission("submit_rf" + comment + ".csv", np.exp(predictions))
+
+    train_predict = gbm.predict(train_fea)
+    rmse = np.sqrt(mean_squared_error(train_Y, train_predict))
+    logger.write("GBM Oob RMSE:" + str(rmse)+ "\n")
+    print "Train Set RMSE:", rmse
+    logger.write("Train Set RMSE:" + str(rmse)+ "\n")
+    cPickle.dump(gbm,open( 'gbm_obj.csv','w'))
+
+if testing == 0: util.write_submission("submit_gbm_" + comment + ".csv", np.exp(predictions))
 
 if testing == 1:
     csv_w_both = csv.writer(open('predictions.csv','wb'))
     for x in xrange(len(predictions)):
-        csv_w_both.writerow([predictions_rf[x],predictions[x], test_Y[x]])
+        csv_w_both.writerow([np.exp(predictions[x]), np.exp(test_Y[x])])
 
 imp = sorted(zip(train_fea.columns, gbm.feature_importances_), key=lambda tup: tup[1], reverse=True)
-csv_w = csv.writer(open('out/rf_features' + comment + '.csv','wb'))
+csv_w = csv.writer(open('out/rf_features_gbm_' + comment + '.csv','wb'))
 for fea in imp:
     csv_w.writerow([fea[0],fea[1]])
 
+print "# of features", len(imp)
 for fea in imp:
-    if testing == 0:
-        if fea[1] > 0.000001:
-            print fea[0], "|", fea[1]
-    else:
-        if fea[1] > 0.01:
-            print fea[0], "|", fea[1]
-            
+    if fea[1] > 0.01:
+        print fea[0], "|", fea[1]
+
+f = len([x for x in imp if x > 0])
+print "# of >0 features", f 
 #print "oob score:", rf.oob_score_
 #print "score", rf.score(train_fea, train_Y)
 #logger.write("oob score:" +str( rf.oob_score_)+ "\n")
@@ -651,28 +666,19 @@ def is_numeric(obj):
     attrs = ['__add__', '__sub__', '__mul__', '__div__', '__pow__']
     return all(hasattr(obj, attr) for attr in attrs)
 
-# RMSE
-print "Calculating RMSE"
-
-train_predict = rf.predict(train_fea)
-#train_predict = np.exp(train_predict)
-    
 print "Length of train_predict", len(train_predict)
 train_len = len(train_predict)
 
-rmse = np.sqrt(mean_squared_error(train_Y, train_predict))
-print "Train Set RMSE:", rmse
-logger.write("Train Set RMSE:" + str(rmse)+ "\n")
 
 if testing == 0:
     train_fea["prediction"] = train_predict
     train_fea["actual"] = train_Y
-    #print "Writing to csv"
-    #train_fea.to_csv('out/rf_train_Y.csv')
+    print "Writing to csv"
+    train_fea[["prediction", "actual"]].to_csv('out/gbm_train_Y.csv')
 else:
     test_fea["prediction"] = predictions
     test_fea["acutal"] = test_Y
-    test_fea.to_csv('out/rf_test_Y.csv')
+    test_fea.to_csv('out/gbm_test_Y-' + comment + '.csv')
 
 print datetime.datetime.today()
 t2 = time()
