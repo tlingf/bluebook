@@ -1,3 +1,5 @@
+""" Kaggle blue book competition main script"""
+
 from collections import defaultdict
 import numpy as np
 import pandas as pd
