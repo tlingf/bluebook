@@ -79,7 +79,7 @@ def map_external_data(data):
     #d = datetime.datetime.strptime(dt_str, '%m/%d/%Y %H:%M')
 
 def get_auction_avg():
-    """ Get the average price for each auction"""
+    """ Get the average price for each auction.. not used"""
     # all the dates
     auction_means = {}
     uniq_dates = np.unique(x for x in np.append(train["salesdate"].values,test[col].values))
@@ -146,7 +146,6 @@ def clean_columns(data, data_out):
             data_out = map_columns(col, d, data, data_out)
         
         elif col == "Backhoe_Mounting":
-        # fillna doesn't really work here?
             new_arr = []
             for x in data[col]:
                 if x == "None": new_arr.append(x)
@@ -349,7 +348,12 @@ def newest_model(data):
 def binarize_cols(col, train, test, train_fea, test_fea):
     """ Change categorical variables to binary columns"""
     lb_bm = preprocessing.LabelBinarizer()
-    lb_bm.fit(np.append(train[col].values, test[col].values))
+    union_values = set(train[col].values).union(set(test[col].values))
+    train[-train[col].isin(union_values)][col] = -1
+    test[-test[col].isin(union_values)][col] = -1
+    union_values.add(-1)
+    lb_bm.fit(list(union_values))
+    #lb_bm.fit(np.append(train[col].values, test[col].values))
     # Create matrix of binary columns
     train_bm = lb_bm.transform(train[col])
     test_bm = lb_bm.transform(test[col])
