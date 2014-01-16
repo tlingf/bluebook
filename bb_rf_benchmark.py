@@ -42,12 +42,12 @@ t1 = time()
 #csv_out = 
 
 def get_date_dataframe(date_column):
+    """ Return dataframe with Sale date parts from date_column"""
     return pd.DataFrame({
         "SaleYear": [d.year for d in date_column],
         "SaleMonth": [d.month for d in date_column],
-    #"SaleWkDay": [d.isocalendar()[2] for d in date_column],
+        #"SaleWkDay": [d.isocalendar()[2] for d in date_column],
         #"SaleDay": [d.day for d in date_column],
-        
         # "SaleYrWk": [d.isocalendar()[1] for d in date_column],
         "SaleYearMo3":[str((d + relativedelta(months = -3)).month) +
                        "/1/" + str((d + relativedelta(months = -3)).year) for d in date_column],
